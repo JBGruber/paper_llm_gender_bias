@@ -1,0 +1,159 @@
+---
+title: 1._prompting.qmd
+author: Johannes B. Gruber
+date: today
+format:
+  html:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    number_sections: true
+---
+
+# Introduction
+
+A few words on what this document accomplishes.
+I use one sentence per line to make it easier to see changes with version control, such as on GitHub.
+
+- prompts
+- word list
+
+## Packages
+
+Write which packages you use at the beginning so if a package is missing, the script fails early.
+
+```{r}
+#| include: false
+library(tidyverse)
+library(rollama)
+# servers <- c("http://localhost:11434", "http://192.168.2.45:11434")
+servers <- "http://192.168.2.29:11434"
+if (!all(ping_ollama(servers, silent = TRUE))) {
+  stop("not all server are running")
+}
+options(rollama_server = servers)
+# special req perform with cache and load balancing
+req_perform_parallel2 <- function(reqs,
+                                  paths = NULL,
+                                  on_error = "continue",
+                                  progress = TRUE,
+                                  max_active = 10) {
+  exists <- file.exists(paths)
+  resps <- vector("list", length = length(reqs))
+  # pb <- list(
+  #   clear = TRUE,
+  #   format = "Prompt {cli::step} | {cli::pb_bar} {cli::pb_percent} [{cli::pb_eta}]"
+  # )
+  pb <- TRUE
+  resps[which(!exists)] <- httr2::req_perform_parallel(reqs[!exists], 
+                                                       paths = paths[!exists], 
+                                                       on_error = on_error, 
+                                                       progress = pb, 
+                                                       max_active = max_active)
+  resps[which(exists)] <- paths[exists]
+  return(resps)
+}
+start <- Sys.time() # note start time for later
+```
+
+## Data
+
+```{r}
+prompts <- read_csv("input/prompts.csv", col_types = "cc")
+nouns <- read_csv("input/nouns.csv", col_types = "icccccccc") |> 
+  pivot_longer(cols = starts_with("Noun_"), names_to = "lang", values_to = "noun") |> 
+  mutate(lang = str_remove(lang, "Noun_")) |> 
+  rename(noun_id = id)
+models <- c(
+  "deepseek-r1:1.5b",
+  "deepseek-r1:32b",
+  "deepseek-r1:70b",
+  "deepseek-r1:7b",
+  "deepseek-r1:8b",
+  "gemma:2b",
+  "gemma:7b",
+  "gemma3:12b",
+  "gemma3:1b",
+  "gemma3:4b",
+  "gpt-oss:120b",
+  "gpt-oss:20b",
+  "llama3:8b",
+  "llama3.1:70b",
+  "llama3.1:8b",
+  "llama3.2:1b",
+  "llama3.2:3b",
+  "mistral",
+  "qwen2.5:0.5b",
+  "qwen2.5:1.5b",
+  "qwen2.5:3b",
+  "qwen2.5:7b"
+)
+check_model_installed(models)
+```
+
+# Main
+
+Construct the full set of prompts:
+
+```{r}
+all_prompts <- nouns |> 
+  left_join(prompts, by = c("lang" = "version")) |> 
+  mutate(prompt = paste(prompt, noun, sep = " "),
+         schema = map(answers, function(a) {
+           a <- str_split(a, ";")[[1]]
+           list(type = "object", 
+                properties = list(
+                  gender = list(
+                    type = "string", 
+                    enum = a
+                  )
+                ),
+                required = "gender"
+           )
+         })) |> 
+  expand_grid(model = models) |> 
+  mutate(prompt_id = paste(lang, noun, model, sep = "_"), .before = 1L) |> 
+  # arrange by model to make sure no unnecessary loading and unloading of models happen
+  arrange(model)
+```
+
+```{r}
+dir.create("cache", showWarnings = FALSE)
+results <- all_prompts |> 
+  mutate(reqs = pmap(list(prompt, model, schema), function(p, m, s) {
+    query(q = p,
+          model = m,
+          server = servers,
+          format = s,
+          output = "httr2_request")[[1]]
+  })) |> 
+  mutate(
+    path = paste0("cache/", prompt_id, ".json"),
+    resps = req_perform_parallel2(reqs, paths = path)
+  )
+```
+
+```{r}
+results |> 
+  mutate(answer = map_chr(path, \(p) {
+    jsonlite::read_json(p)[["message"]][["content"]] |> 
+      jsonlite::fromJSON() |> 
+      toString()
+  })) |> 
+  group_by(lang) |> 
+  count(answer, sort = TRUE)
+```
+
+
+
+# wrap up
+
+Save data if it takes long to preprocess it here. 
+Afterwards we get some information which is important to reproduce the report.
+
+```{r}
+sessionInfo()
+Sys.time()
+# note how long the script takes to (re-)run
+Sys.time() - start
+```

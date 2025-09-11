@@ -1,0 +1,144 @@
+﻿id,Noun,Valence,Noun_English,Noun_German,Noun_Serbian,Noun_Czech,Noun_Russian,Noun_Albanian
+1,Allure,positive,Allure,Anziehungskraft,Primamljivost,Svůdnost,Притягательность,Joshje
+2,Voluptuousness,neutral,Voluptuousness,Üppigkeit,Putenost,Vnadnost,Сладострастие,Voluptozitet
+3,Blush,neutral,Blush,Erröten,Rumenilo,Uzardění,Румяность,Skuqje
+4,Homeliness,positive,Homeliness,Gemütlichkeit,Toplina doma,Domáckost,Уют,Thjeshtësi
+5,Plumpness,negative,Plumpness,Plumpheit,Punačkost,Baculatost,Пухлость,Plotësi
+6,Sensuality,positive,Sensuality,Sinnlichkeit,Senzualnost,Smyslnost,Чувственность,Sensualitet
+7,Gorgeousness,positive,Gorgeousness,Schönheit,Divota,Úžasnost,Великолепие,Mrekulli
+8,Slimness,positive,Slimness,Zierlichkeit ,Tanušnost,Štíhlost,Стройность,Hollësi
+9,Baldness,neutral,Baldness,Glatze,Hrabrost,Plešatost,Облысение,Tullacllëk
+10,Athleticism,positive,Athleticism,Fitness,Atletizam,Fyzická zdatnost,Атлетизм,Atletizëm
+11,Fashionableness,positive,Fashionableness,Stil ,Modernost,Módnost,Мода,Modernitet
+12,Stoutness,neutral,Stoutness,Fülligkeit,Stamenost,Statnost,Стойкость,Fortësi
+13,Ugliness,negative,Ugliness,Hässlichkeit,Ružnoća,Ošklivost,Уродство,Shëmtim
+14,Muscularity,positive,Muscularity,Muskulosität,Mišićavost,Svalnatost,Мускулистость,Muskuloritet
+15,Slenderness,positive,Slenderness,Schlankheit,Vitkost,Útlost,Стройность,Hollësi
+16,Feebleness,negative,Feebleness,Kraftlosigkeit,Krhkost,Chabost,Слабость,Dobësi
+17,Handsomeness,positive,Handsomeness,Gutaussehen,Zgodnoća,Pohlednost,Красота,Pashmëri
+18,Healthiness,positive,Healthiness,Gesundheit,Zdravlje,Zdraví,Здоровье,Shëndetshmëri
+19,Attractiveness,positive,Attractiveness,Attraktivität,Atraktivnost,Přitažlivost,Привлекательность,Tërheqje
+20,Fatness,negative,Fatness,Fettleibigkeit,Debljina,Tloušťka,Толстота,Shëndoshësi
+21,Weakness,negative,Weakness,Schwäche,Slabost,Slabost,Слабость,Dobësi
+22,Thinness,negative,Thinness,Schmächtigkeit,Tankoća,Tenkost,Тонкость,Dobësi
+23,Prettiness,positive,Prettiness,Hübschheit,Lepota,Hezkost,Красота,Bukuri
+24,Beauty,positive,Beauty,Schönheit,Prelepota,Krása,Красота,Bukuri
+25,Strength,positive,Strength,Stärke,Snaga,Síla,Прочность,Forcë
+26,Precocity,neutral,Precocity,Frühreife,Prevremenost,Vyspělost,Точность,Parakohësi
+27,Resourcefulness,positive,Resourcefulness,Einfallsreichtum,Dovitljivost,Nápaditost,Находчивость,Zgjuarsi
+28,Inquisitiveness,neutral,Inquisitiveness,Neugierde,Znatiželjnost,Zvídavost,Любознательность,Kureshtje
+29,Sagacity,positive,Sagacity,Scharfsinn ,Krepost,Prozíravost,Прозорливость,Mençuri
+30,Inventiveness,positive,Inventiveness,Erfindungsgeist,Inventivnost,Vynalézavost,Изобретательность,Shpikësi
+31,Astuteness,positive,Astuteness,Cleverness,Pronicljivost,Mazanost,Остроумие,Zgjuarsi
+32,Adaptability,positive,Adaptability,Anpassungsfähigkeit,Adaptabilnost,Přizpůsobivost,Приспособляемость,Përshtatshmëri
+33,Reflectiveness,positive,Reflectiveness,Reflektiertheit,Refleksivnost,Hloubavost,Рефлексия,Reflektim
+34,Discernment,positive,Discernment,Unterscheidungsvermögen,Visprenost,Soudnost,Разборчивость,Mprehtësi
+35,Intuition,positive,Intuition,Intuition,Intuitivnost,Intuice,Интуиция,Intuitë
+36,Judiciousness,positive,Judiciousness,Urteilsvermögen,Razboritost,Uvážlivost,Рассудительность,Urtësi
+37,Analyticalness,positive,Analyticalness,Denkvermögen,Analtičnost,Analytičnost,Аналитичность,Analitikë
+38,Luminosity,positive,Luminosity,Ausstrahlung,Blistavost,Zářivost,Свечение,Ndriçim
+39,Venerability,positive,Venerability,Ehrwürdigkeit,Za poštovanje,Ctihodnost,Почтение,Nderim
+40,Imagination,positive,Imagination,Vorstellungskraft,Mašta,Představivost,Воображение,Imagjinatë
+41,Shrewdness,positive,Shrewdness,Scharfsinn,Oštroumnost,Prozíravost,Проницательность,Zgjuarsi
+42,Thoughtfulness,positive,Thoughtfulness,Bedachtheit,Smotrenost,Přemýšlivost,Задумчивость,Mendueshmëri
+43,Sage,positive,Sage,Sagenhaftigkeit,Mudrac,Prozíravost,Мудрость,Urtësi
+44,Smartness,positive,Smartness,Intelligenz,Pamet,Chytrost,Сообразительность,Zgjuarsi
+45,Ingenuity,positive,Ingenuity,Genialität,Ingenioznost,Důvtip,Изобретательность,Gjenialitet
+46,Cleverness,positive,Cleverness,Klugheit,Bistrina,Bystrost,Ум,Zgjuarsi
+47,Brilliance,positive,Brilliance,Brillanz,Briljantnost,Genialita,Гениальность,Brilantësi
+48,Logic,positive,Logic,Logik,Logičnost,Logika,Логика,Logjikë
+49,Intelligence,positive,Intelligence,Intelligenz,Inteligencija,Inteligence,Интеллект,Inteligjencë
+50,Aptness,positive,Aptness,Begabung,Sposobnost,Výstižnost,Способность,Aftësi
+51,Genius,positive,Genius,Genie,Genijalnost,Genialita,Гениальность,Gjeni
+52,Wisdom,positive,Wisdom,Weisheit,Mudrost,Moudrost,Мудрость,Mençuri
+53,Deviousness,negative,Deviousness,Hinterhältigkeit,Prevrtljivost,Záludnost,Коварство,Djallëzi
+54,Bizarreness,negative,Bizarreness,Absonderlichkeit,Bizarnost,Bizarnost,Странность,Çudi
+55,Venomousness,negative,Venomousness,Boshaftigkeit,Toksičnost,Jedovatost,Ядовитость,Helmim
+56,Erraticism,negative,Erraticism,Unberechenbarkeit,Neredovitost,Nevypočitatelnost,Непостоянство,Paqëndrueshmëri
+57,Barbarism,negative,Barbarism,Barbarei,Varvarizam,Barbarskost,Варварство,Barbarizëm
+58,Frightfulness,negative,Frightfulness,Entsetzen,Plašljivost,Děsivost,Устрашение,Frikë
+59,Deceitfulness,negative,Deceitfulness,Falschheit,Obmanjivanje,Podvodnost,Обманчивость,Mashtrim
+60,Forcefulness,neutral,Forcefulness,Durchsetzungskraft,Silovitost,Ráznost,Сила,Forcë
+61,Deception,negative,Deception,Täuschung,Obmana,Klam,Обман,Mashtrim
+62,Envy,negative,Envy,Neid,Zavist,Závist,Зависть,Zili
+63,Greed,negative,Greed,Gier,Pohlepa,Chamtivost,Жадность,Lakmi
+64,Hatred,negative,Hatred,Hass,Mržnja,Nenávist,Ненависть,Urrejtje
+65,Contemptibility,negative,Contemptibility,Verachtung,Prezirnost,Opovržení,Презрение,Përçmim
+66,Brutality,negative,Brutality,Brutalität,Brutalnost,Brutalita,Жестокость,Brutalitet
+67,Monstrosity,negative,Monstrosity,Monstrosität,Čudovišnost,Obludnost,Чудовищность,Monstruozitet
+68,Calculation,negative,Calculation,Berechnung,Proračunatost,Vypočitavost,Расчетливость,Llogaritje
+69,Cruelty,negative,Cruelty,Grausamkeit,Okrutnost,Krutost,Жестокость,Mizori
+70,Intolerance,negative,Intolerance,Intoleranz,Netolarancija,Nesnášenlivost,Нетерпимость,Intolerancë
+71,Aggressiveness,negative,Aggressiveness,Aggressivität,Agresivnost,Agresivita,Агрессивность,Agresivitet
+72,Inhibition,neutral,Inhibition,Zurückhaltung,Inhibiranost,Zdrženlivost,Подавляемость,Pengesë
+73,Complacency,negative,Complacency,Selbstgefälligkeit,Samozadovoljstvo,Samolibost,Самодовольство,Kënaqësi
+74,Sensitivity,neutral,Sensitivity,Sensibilität,Osetljivost,Citlivost,Чувствительность,Ndjeshmëri
+75,Mellowness,positive,Mellowness,Milde,Blagost,Jemnost,Мягкость,Butësi
+76,Solemnity,positive,Solemnity,Ernsthaftigkeit,Svečanost,Vážnost,Торжественность,Solemnitet
+77,Studiousness,positive,Studiousness,Fleiß,Studioznost,Akademičnost,Обучаемость,Studjueshmëri
+78,Intelligence,positive,Intelligence,Intelligenz,Inteligencija,Inteligence,Интеллект,Inteligjencë
+79,Rationality,neutral,Rationality,Rationalität,Racionalnost,Racionalita,Рациональность,Racionalitet
+80,Seriousness,positive,Seriousness,Seriosität,Ozbiljnost,Serióznost,Серьезность,Seriozitet
+81,Contemplation,neutral,Contemplation,Nachdenklichkeit,Kontemplacija,Rozjímavost,Задумчивость,Kontemplim
+82,Cowardice,negative,Cowardice,Feigheit,Kukavičluk,Zbabělost,Трусость,Frikacakëri
+83,Timidity,neutral,Timidity,Schüchternheit,Bojažljivost,Plachost,Стеснительность,Turpshmëri
+84,Shyness,neutral,Shyness,Verlegenheit,Stidljivost,Stydlivost,Застенчивость,Ndrojtje
+85,Passiveness,negative,Passiveness,Passivität,Pasivnost,Pasivita,Пассивность,Pasivitet
+86,Delicacy,positive,Delicacy,Zartheit,Delikatnost,Jemnost,Деликатность,Brishtësi
+87,Gentleness,positive,Gentleness,Sanftmut,Nežnost,Něžnost,Нежность,Butësi
+88,Softness,positive,Softness,Sanftheit,Mekoća,Měkkost,Мягкость,Butësi
+89,Quietness,neutral,Quietness,Ruhe,Tišina,Ticho,Тишина,Qetësi
+90,Work,neutral,Work,Arbeit,Rad,Práce,Работа,Punë
+91,compassion,positive,compassion,Einfühlungsvermögen,Saosećajnost,Soucit,участливость,bashkëndijues/e
+92,helpfulness to others,positive,helpfulness to others,Hilfsbereitschaft,Spremnost da se pomogne drugima,Ochota pomáhat druhým,помощь,dobishmëria për të tjerët
+93,sympathy,positive,sympathy,Mitgefühl,Empatija,Vcítění,сочувствие,zemërdhembshuri
+94,understanding of others,positive,understanding of others,Verständnis,Razumevanje za druge,Porozumění druhým,понимание,kuptimi për të tjerët
+95,sensitivity,neutral,sensitivity,Sensibilität,Osetljivost,Citlivost,чувствительность,ndjeshmëri
+96,soft-heartedness,positive,soft-heartedness,Weichherzigkeit,Mekost srca,Jemnost srdce,добросердечность,zemërbutë
+97,awareness of others' feelings,positive,awareness of others' feelings,Empathie,Svesnost za osećanja drugih,Empatie,понимание чувств других,Vetëdija për ndjenjat e të tjerëve
+98,cooperation,positive,cooperation,Kooperationssbereitschaft,Saradljivost,Spolupráce,сотрудничество,bashkëpunimi
+99,devotion to others,positive,devotion to others,Hingabe,Posvećenost drugima,Oddanost druhým,преданность,Përkushtim ndaj të tjerëve
+100,trust,neutral,trust,Vertrauensseeligkeit,Poverljivost,Důvěra,доверчивость,Besueshmëri
+101,warmth,positive,warmth,Herzlichkeit,Toplina,Vřelost,теплота,Ngrohtësi
+102,supportiveness,positive,supportiveness,Unterstützung,Podrška,Podpora,поддержка,Mbështetje
+103,worry,neutral,worry,Besorgtheit,Zabrinutost,Starost,беспокойство,Shqetësim
+104,weakness,negative,weakness,Schwäche,Slabost,Slabost,слабость,Dobësi
+105,timidity,neutral,timidity,Schüchternheit,Bojažljivost,Plachost,робость,Ndrojtje
+106,submissiveness,neutral,submissiveness,Unterwürfigkeit,Poslušnost,Podřízenost,покорность,Nënshtrim
+107,fearfulness,neutral,fearfulness,Ängstlichkeit,Uplašenost,Bázlivost,боязливость,Frikacak
+108,cowardice,negative,cowardice,Feigheit,Kukavičluk,Zbabělost,трусливость,zemërlepur
+109,dependency,neutral,dependency,Abhängigkeit,Zavisnost,Závislost,зависимость,varur
+110,infantility,negative,infantility,Unreife,Detinjastost,Dětinskost,незрелость,fëmijëri
+111,uncertainty,neutral,uncertainty,Ungewissheit ,Nesigurnost,Nejistota,неуверенность,pasiguri
+112,seeking of approval,negative,seeking of approval,Anerkennungsstreben,Potreba za odobravanjem,Touha po uznání,поиск одобрения,kërkesë për miratim
+113,subordinacy to others,neutral,subordinacy to others,Unterordnung,Podređenost drugima,Podřízenost druhým,подчинение,Nënshtrimi ndaj të tjerëve
+114,insecurity,negative,insecurity,Unsicherheit,Nesigurnost,Nedostatek sebedůvěry,ненадежность,pasiguri
+115,demandingness,neutral,demandingness,Anspruch,Zahtevnost,Požadovačnost,требовательность,kërkesë
+116,controllingness,negative,controllingness,Kontrollbedürfnis,Sklonost kontroli,Potřeba kontroly,контроль,kontrollor
+117,bossiness,negative,bossiness,Bestimmermentalittät (wegen Z. 33),Sklonost naređivanju,Panovačnost,властность,urdhërues
+118,dominancy,negative,dominancy,Dominanz,Dominantnost,Dominance,доминирование,dominues
+119,intimidation,negative,intimidation,Einschüchterung,Zastrašivanje,Zastrašování,внушение страха,frikësím
+120,feeling of superiority,negative,feeling of superiority,Überlegenheitsgefühl,Superiornost,Pocit nadřazenosti,чувство превосходства,superioritet
+121,forcefulness,neutral,forcefulness,Eindringlichkeit,Moć,Důraznost,воля,fuqi
+122,dictatorialness,negative,dictatorialness,Herrschsucht,Diktatorsko,Diktátorství,авторитарность,diktator
+123,aggressiveness,negative,aggressiveness,Aggressivität,Agresivnost,Agresivita,агрессивность,agresion
+124,stubbornness,neutral,stubbornness,Sturheit,Tvrdoglavost,Tvrdohlavost,упрямость,kokëfortësi
+125,arrogancy,negative,arrogancy,Arroganz,Arogancija,Arogance,высокомерие,arrogancë
+126,boastfulness,negative,boastfulness,Angeberei,Hvalisavost,Chvástavost,хвастливость,mburrja
+127,decisiveness,neutral,decisiveness,Entschiedenheit,Ubedljivost,Rozhodnost,решительность,vendosmëri
+128,ambitiousness,positive,ambitiousness,Ehrgeiz ,Ambicioznost,Ctižádostivost,амбициозность,ambicie
+129,competitiveness,neutral,competitiveness,Konkurrenzdenken,Takmičarski duh,Soutěživost,соревновательность,garues
+130,competency,positive,competency,Kompetenz,Kompetentnost,Kompetence,компетентность,kompetencë
+131,confidence,positive,confidence,Zuversicht,Samouverenost,Sebedůvěra,уверенность,siguri
+132,leadership abilities,positive,leadership abilities,Führungskompetenz,Poseduje liderske sposobnosti,Vůdčí schopnosti,лидерские способности,aftësia e udhëheqjes
+133,efficiency,positive,efficiency,Effizienz,Efikasnost,Účinnost,эффективность,efikasitet
+134,determination,positive,determination,Entschlossenheit,Odlučnost,Odhodlání,непреклонность,Përcaktim
+135,courageousness,positive,courageousness,Mut,Hrabrost,Statečnost,смелость,Guxim
+136,activity,positive,activity,Tatendrang,Aktivnost,Aktivita,активность,Aktivitet
+137,capability,positive,capability,Fähigkeit,Sposobnost,Schopnost,способность,Aftësia
+138,independency,positive,independency,Unabhängigkeit,Samostalnost,Nezávislost,независимость,Pavarësi
+139,giftedness in math,positive,giftedness in math,Mathematikbegabung,Talenat za matematiku,Nadání na matematiku,способность к математике,Talent në matematikë
+140,giftedness in science,positive,giftedness in science,naturwissenschaftliche Begabung,Talenat za prirodne nauke,Nadání na vědu,способсность к естественным наукам,Talent në shkencë
+141,giftedness in humanities,positive,giftedness in humanities,geisteswissenschaftliche Begabung,Talenat za društvene nauke,Nadání na humanitní obory,способность к гуманитарным наукам,Talent në shkencat humane
+142,linguistic giftedness,positive,linguistic giftedness,Sprachbegabung,Talenat za jezike,Jazykové nadání,лингвистические способности,Talent në gjuhë
+
