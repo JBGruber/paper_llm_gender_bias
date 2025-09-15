@@ -12,26 +12,24 @@ format:
 
 # Introduction
 
-A few words on what this document accomplishes.
-I use one sentence per line to make it easier to see changes with version control, such as on GitHub.
-
-- prompts
-- word list
+This file does all the prompting for the article "Gender Representation in Large Language Models: A Cross-Linguistic and Cross-Model Analysis"
 
 ## Packages
 
-Write which packages you use at the beginning so if a package is missing, the script fails early.
+We use Ollama with the R package rollama for the prompting.
+To make the prompting more efficient and make sure errors can be easily recovered from, I use a custom version of `httr2::req_perform_parallel()`, which rollama uses under the hood.
 
 ```{r}
 #| include: false
 library(tidyverse)
 library(rollama)
-# servers <- c("http://localhost:11434", "http://192.168.2.45:11434")
-servers <- "http://192.168.2.29:11434"
-if (!all(ping_ollama(servers, silent = TRUE))) {
+
+# the script can use several ollama servers and distribute requests between them
+# options(rollama_server = c("http://localhost:11434", "http://192.168.2.45:11434"))
+if (!all(ping_ollama())) {
   stop("not all server are running")
 }
-options(rollama_server = servers)
+
 # special req perform with cache and load balancing
 req_perform_parallel2 <- function(reqs,
                                   paths = NULL,
@@ -40,23 +38,52 @@ req_perform_parallel2 <- function(reqs,
                                   max_active = 10) {
   exists <- file.exists(paths)
   resps <- vector("list", length = length(reqs))
-  # pb <- list(
-  #   clear = TRUE,
-  #   format = "Prompt {cli::step} | {cli::pb_bar} {cli::pb_percent} [{cli::pb_eta}]"
-  # )
-  pb <- TRUE
-  resps[which(!exists)] <- httr2::req_perform_parallel(reqs[!exists], 
-                                                       paths = paths[!exists], 
-                                                       on_error = on_error, 
-                                                       progress = pb, 
-                                                       max_active = max_active)
+  if (progress) progress <- list(
+    clear = TRUE,
+    format = "Prompting {cli::pb_bar} | {cli::pb_percent} [{cli::pb_current}/{cli::pb_total} ETA: {cli::pb_eta}]",
+    format_done = "Done running {length(reqs)} prompts!"
+  )
+
+  resps[which(!exists)] <- httr2::req_perform_parallel(
+    reqs[!exists], 
+    paths = paths[!exists], 
+    on_error = on_error, 
+    progress = progress, 
+    max_active = max_active
+  ) |> 
+    # I'm only extracting the body, which contains the path to the json file
+    # to make this compatible with the other output
+    map_chr("body")
   resps[which(exists)] <- paths[exists]
   return(resps)
 }
+
+
+parse_json_response <- function(r) {
+    out <- ""
+    if (!file.exists(r)) {
+      cli::cli_warn("{r} does not exist")
+      return(out)
+    }
+    res <- jsonlite::read_json(r)
+    if (pluck_exists(res, "error")) {
+      cli::cli_warn("Result contains error and will be deleted. Error:\n{res$error}")
+      file.remove(r)
+    } else {
+      out <- pluck(res, "message", "content")
+      if (str_detect(out, fixed("{"))) {
+        out <- jsonlite::fromJSON(out)
+      }
+      out <- toString(out)
+    }
+    return(out)
+  }
 start <- Sys.time() # note start time for later
 ```
 
 ## Data
+
+We construct a grid of the different prompts (one for each language), the selected nouns, and a range of different models.
 
 ```{r}
 prompts <- read_csv("input/prompts.csv", col_types = "cc")
@@ -82,6 +109,7 @@ models <- c(
   "llama3.1:8b",
   "llama3.2:1b",
   "llama3.2:3b",
+  "llama4:16x17b",
   "mistral",
   "qwen2.5:0.5b",
   "qwen2.5:1.5b",
@@ -91,65 +119,89 @@ models <- c(
 check_model_installed(models)
 ```
 
+
 # Main
 
-Construct the full set of prompts:
+We construct the full set of prompts here.
+To get only valid answers, we use the structured output technique, to limit the choices the model can make.
+We also run each combination of prompt and model 10 times, to add variation.
+In previous iterations, we noticed that Ollama does some caching of replies.
+So me make sure to first run all prompts in iteration 1, then all prompts in iteration 2 and so on.
 
 ```{r}
 all_prompts <- nouns |> 
   left_join(prompts, by = c("lang" = "version")) |> 
-  mutate(prompt = paste(prompt, noun, sep = " "),
+  filter(lang == "English") |> 
+  mutate(prompt = paste(prompt, noun, sep = "\n"),
          schema = map(answers, function(a) {
            a <- str_split(a, ";")[[1]]
            list(type = "object", 
                 properties = list(
-                  gender = list(
+                  association = list(
                     type = "string", 
                     enum = a
                   )
                 ),
-                required = "gender"
+                required = "association"
            )
          })) |> 
-  expand_grid(model = models) |> 
+  expand_grid(model = models, seed = 1:10, temperature = seq(0, 1, 0.2)) |> 
   mutate(prompt_id = paste(lang, noun, model, sep = "_"), .before = 1L) |> 
   # arrange by model to make sure no unnecessary loading and unloading of models happen
-  arrange(model)
+  # but also arrange by seed to not run same prompt + model back to back
+  arrange(seed, temperature, model)
 ```
+
+I use rollama to prepare the requests to the servers, which are then made with the custom req_perform_parallel2 function defined above.
 
 ```{r}
 dir.create("cache", showWarnings = FALSE)
-results <- all_prompts |> 
-  mutate(reqs = pmap(list(prompt, model, schema), function(p, m, s) {
-    query(q = p,
-          model = m,
-          server = servers,
-          format = s,
-          output = "httr2_request")[[1]]
+grid <- all_prompts |> 
+  mutate(reqs = pmap(list(prompt, model, schema, seed, temperature), function(p, m, s, sd, temp) {
+    query(
+      q = p,
+      model = m,
+      format = s,
+      output = "httr2_request",
+      model_params = list(seed = sd, temperature = temp)
+    )[[1]]
   })) |> 
-  mutate(
-    path = paste0("cache/", prompt_id, ".json"),
-    resps = req_perform_parallel2(reqs, paths = path)
-  )
+  mutate(path = paste0("cache/", prompt_id, ".json"),)
+glimpse(grid)
 ```
+
+In total, the grid contains `r nrow(grid)` requests to Ollama
 
 ```{r}
-results |> 
-  mutate(answer = map_chr(path, \(p) {
-    jsonlite::read_json(p)[["message"]][["content"]] |> 
-      jsonlite::fromJSON() |> 
-      toString()
-  })) |> 
-  group_by(lang) |> 
-  count(answer, sort = TRUE)
+results <- grid |> 
+  mutate(resps = req_perform_parallel2(reqs, paths = path))
 ```
 
+Results are written into a cache directory.
+Once all prompting is done, we load the results from the cache directory and parse them.
+```{r}
+results_parsed <- results |> 
+  mutate(answer = map_chr(resps, parse_json_response))
+```
+
+Quick glance at results:
+
+```{r}
+results_parsed |> 
+  count(lang, answer, sort = TRUE)
+```
 
 
 # wrap up
 
-Save data if it takes long to preprocess it here. 
-Afterwards we get some information which is important to reproduce the report.
+save results:
+
+```{r}
+dir.create("data", showWarnings = FALSE)
+saveRDS(results_parsed, "data/results_parsed.rds")
+```
+
+Some information about the session:
 
 ```{r}
 sessionInfo()
