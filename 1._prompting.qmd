@@ -40,7 +40,7 @@ req_perform_parallel2 <- function(reqs,
   resps <- vector("list", length = length(reqs))
   if (progress) progress <- list(
     clear = TRUE,
-    format = "Prompting {cli::pb_bar} | {cli::pb_percent} [{cli::pb_current}/{cli::pb_total} ETA: {cli::pb_eta}]",
+    format = "Prompting {cli::pb_bar} | {cli::pb_percent} [{cli::pb_current}/{cli::pb_total} | rate: {cli::pb_rate} | ETA: {cli::pb_eta}]",
     format_done = "Done running {length(reqs)} prompts!"
   )
 
@@ -116,6 +116,10 @@ models <- c(
   "qwen2.5:3b",
   "qwen2.5:7b"
 )
+# only use installed models
+if (TRUE) {
+  models <- intersect(rollama::list_models()$model, models)
+}
 check_model_installed(models)
 ```
 
@@ -146,7 +150,9 @@ all_prompts <- nouns |>
            )
          })) |> 
   expand_grid(model = models, seed = 1:10, temperature = seq(0, 1, 0.2)) |> 
-  mutate(prompt_id = paste(lang, noun, model, sep = "_"), .before = 1L) |> 
+  mutate(prompt_id = tolower(paste(lang, noun, model, temperature, seed, sep = "_")), .before = 1L) |> 
+  # for temperature 0, the seed does not change the outcome, so we don't need it
+  filter(!(temperature == 0 & seed > 1L)) |> 
   # arrange by model to make sure no unnecessary loading and unloading of models happen
   # but also arrange by seed to not run same prompt + model back to back
   arrange(seed, temperature, model)
@@ -157,7 +163,7 @@ I use rollama to prepare the requests to the servers, which are then made with t
 ```{r}
 dir.create("cache", showWarnings = FALSE)
 grid <- all_prompts |> 
-  mutate(reqs = pmap(list(prompt, model, schema, seed, temperature), function(p, m, s, sd, temp) {
+  mutate(req = pmap(list(prompt, model, schema, seed, temperature), function(p, m, s, sd, temp) {
     query(
       q = p,
       model = m,
@@ -166,7 +172,7 @@ grid <- all_prompts |>
       model_params = list(seed = sd, temperature = temp)
     )[[1]]
   })) |> 
-  mutate(path = paste0("cache/", prompt_id, ".json"),)
+  mutate(path = paste0("cache/", prompt_id, ".json"))
 glimpse(grid)
 ```
 
@@ -174,11 +180,12 @@ In total, the grid contains `r nrow(grid)` requests to Ollama
 
 ```{r}
 results <- grid |> 
-  mutate(resps = req_perform_parallel2(reqs, paths = path))
+  mutate(resps = req_perform_parallel2(req, paths = path))
 ```
 
 Results are written into a cache directory.
 Once all prompting is done, we load the results from the cache directory and parse them.
+
 ```{r}
 results_parsed <- results |> 
   mutate(answer = map_chr(resps, parse_json_response))
