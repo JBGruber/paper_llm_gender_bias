@@ -55,29 +55,47 @@ req_perform_parallel2 <- function(reqs,
     # to make this compatible with the other output
     map_chr("body")
   resps[which(exists)] <- paths[exists]
+  
+  # verify that all responses can be parsed
+  if (!all(map_lgl(paths, check_json_response))) {
+    # call itself to execute again
+    resps <- req_perform_parallel2(
+      reqs = reqs,
+      paths = paths,
+      on_error = on_error,
+      progress = progress,
+      max_active = max_active
+    )
+  }
   return(resps)
 }
 
-
+# parse cached responses
 parse_json_response <- function(r) {
-    out <- ""
-    if (!file.exists(r)) {
-      cli::cli_warn("{r} does not exist")
-      return(out)
-    }
-    res <- jsonlite::read_json(r)
-    if (pluck_exists(res, "error")) {
-      cli::cli_warn("Result contains error and will be deleted. Error:\n{res$error}")
-      file.remove(r)
-    } else {
-      out <- pluck(res, "message", "content")
-      if (str_detect(out, fixed("{"))) {
-        out <- jsonlite::fromJSON(out)
-      }
-      out <- toString(out)
-    }
-    return(out)
+  jsonlite::read_json(r) |> 
+    pluck(res, "message", "content")
+}
+
+# make sure responses can be parsed
+check_json_response <- function(json_file) {
+  res <- try(jsonlite::read_json(json_file), silent = TRUE)
+  if (methods::is(res, "try-error")) {
+    cli::cli_warn("Corrupt json file will be deleted:  {json_file}")
+    file.remove(json_file)
+    return(FALSE)
+  } 
+  if (pluck_exists(res, "error")) {
+    cli::cli_warn("Result contains error and will be deleted:  {json_file}.\n Error:\n{res$error}")
+    file.remove(json_file)
+    return(FALSE)
+  } 
+  if (!pluck_exists(res, "message", "content")) {
+    cli::cli_warn("Content missing. file will be deleted: {json_file}")
+    file.remove(json_file)
+    return(FALSE)
   }
+  return(TRUE)
+}
 start <- Sys.time() # note start time for later
 ```
 
@@ -109,17 +127,13 @@ models <- c(
   "llama3.1:8b",
   "llama3.2:1b",
   "llama3.2:3b",
-  "llama4:16x17b",
-  "mistral",
+  "llama4:latest",
+  "mistral:latest",
   "qwen2.5:0.5b",
   "qwen2.5:1.5b",
   "qwen2.5:3b",
   "qwen2.5:7b"
 )
-# only use installed models
-if (TRUE) {
-  models <- intersect(rollama::list_models()$model, models)
-}
 check_model_installed(models)
 ```
 
@@ -137,6 +151,7 @@ all_prompts <- nouns |>
   left_join(prompts, by = c("lang" = "version")) |> 
   filter(lang == "English") |> 
   mutate(prompt = paste(prompt, noun, sep = "\n"),
+         # schema for structured outputs. Limits the possible answers the models can give
          schema = map(answers, function(a) {
            a <- str_split(a, ";")[[1]]
            list(type = "object", 
@@ -167,7 +182,8 @@ grid <- all_prompts |>
     query(
       q = p,
       model = m,
-      format = s,
+      # we deactivated the structured output feature because thinking models (like gpt-oss) do not provide any answer at all
+      # format = s,
       output = "httr2_request",
       model_params = list(seed = sd, temperature = temp)
     )[[1]]

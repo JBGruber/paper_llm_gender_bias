@@ -1,5 +1,6 @@
 .Rhistory
 req_perform_parallel_w_cache.r
+check_json_response.r
 .Rproj.user/
 cache/
 old/
