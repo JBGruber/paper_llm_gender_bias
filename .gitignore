@@ -4,3 +4,9 @@ check_json_response.r
 .Rproj.user/
 cache/
 old/
+1._prompting_control.qmd
+1._prompting_desktop.r
+1._prompting_framework.r
+1._prompting_gesis.r
+1._prompting_sal.r
+1._prompting_files/
