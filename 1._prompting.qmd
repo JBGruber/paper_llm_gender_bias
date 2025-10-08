@@ -26,18 +26,31 @@ library(rollama)
 
 # the script can use several ollama servers and distribute requests between them
 # options(rollama_server = c("http://localhost:11434", "http://192.168.2.45:11434"))
-if (!all(ping_ollama())) {
-  stop("not all server are running")
-}
 
 # special req perform with cache and load balancing
 req_perform_parallel2 <- function(reqs,
                                   paths = NULL,
                                   on_error = "continue",
                                   progress = TRUE,
+                                  skip_unfinished = FALSE,
                                   max_active = 10) {
   exists <- file.exists(paths)
   resps <- vector("list", length = length(reqs))
+  resps[which(exists)] <- paths[exists]
+
+  if (skip_unfinished) {
+    resps[which(!exists)] <- NA_character_
+    check <- map_lgl(paths[exists], check_json_response)
+    paths[exists][!check] <- NA_character_
+    return(resps)
+  }
+
+  if (!all(ping_ollama())) {
+    stop("not all server are running")
+  }
+
+  check_model_installed(models)
+
   if (progress) progress <- list(
     clear = TRUE,
     format = "Prompting {cli::pb_bar} | {cli::pb_percent} [{cli::pb_current}/{cli::pb_total} | rate: {cli::pb_rate} | ETA: {cli::pb_eta}]",
@@ -54,7 +67,6 @@ req_perform_parallel2 <- function(reqs,
     # I'm only extracting the body, which contains the path to the json file
     # to make this compatible with the other output
     map_chr("body")
-  resps[which(exists)] <- paths[exists]
   
   # verify that all responses can be parsed
   if (!all(map_lgl(paths, check_json_response))) {
@@ -135,7 +147,6 @@ models <- c(
   "qwen2.5:3b",
   "qwen2.5:7b"
 )
-check_model_installed(models)
 ```
 
 
@@ -197,15 +208,17 @@ In total, the grid contains `r nrow(grid)` requests to Ollama
 
 ```{r inference}
 results <- grid |> 
-  mutate(resps = req_perform_parallel2(req, paths = path))
+  mutate(resp = req_perform_parallel2(req, paths = path, skip_unfinished = TRUE)) |> 
+  # remove when all prompting is done
+  filter(!is.na(resp))
 ```
 
 Results are written into a cache directory.
-When a prompt has already beend answered, we load the answer from disk instead of querying again.
+When a prompt has already been answered, we load the answer from disk instead of querying again.
 
 ```{r parsing}
 results_parsed <- results |> 
-  mutate(answer = map_chr(resps, parse_json_response))
+  mutate(answer = map_chr(resp, parse_json_response))
 ```
 
 Quick glance at results:
@@ -217,8 +230,10 @@ results_parsed |>
 
 Note how much time was spent in total:
 
-```{r}
-time_spent <- map(results$resps, \(r) {
+```{r time_spent}
+time_spent <- results |> 
+  pull(resp) |> 
+  map(function(r) {
   res <- jsonlite::read_json(r)
   tibble(
     model          = pluck(res, "model"),

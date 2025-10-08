@@ -10,3 +10,5 @@ old/
 1._prompting_gesis.r
 1._prompting_sal.r
 1._prompting_files/
+2._data_cleaning_files/
+.vscode/

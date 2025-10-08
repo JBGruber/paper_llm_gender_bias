@@ -1,0 +1,133 @@
+---
+title: 2. data cleaning
+author: Johannes B. Gruber and Aleksandra Urman
+date: today
+format:
+  html:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    number_sections: true
+---
+
+# Introduction
+
+This file does all the prompting for the article "Gender Representation in Large Language Models: A Cross-Linguistic and Cross-Model Analysis"
+
+## Packages
+
+We use Ollama with the R package rollama for the prompting.
+To make the prompting more efficient and make sure errors can be easily recovered from, I use a custom version of `httr2::req_perform_parallel()`, which rollama uses under the hood.
+
+```{r setup}
+#| include: false
+library(tidyverse)
+apply_codebook <- function(string, codebook) {
+  # remove all thinking first
+  string <- str_remove(string, "<think>[\\S\\s]+</think>")
+  hits <- map(codebook, function(pattern) {
+    pattern <- paste0(pattern, collapse = "|")
+    str_extract_all(string, regex(pattern, ignore_case = TRUE))[[1]] |> 
+      tolower() |> 
+      unique()
+  })
+  list(
+    hit = unlist(hits),
+    category = unique(names(unlist(hits)))
+  )
+}
+start <- Sys.time() # note start time for later
+```
+
+## Data
+
+We construct a grid of the different prompts (one for each language), the selected nouns, and a range of different models.
+
+```{r}
+results <- readRDS("data/results_parsed.rds") |> 
+  select(prompt_id, noun_id, Noun, Valence, lang, noun, model, seed, temperature, answer)
+# dictionary for gender extraction
+gender_patterns <- list(
+  English = list(
+    men = c("\\bmen\\b", "\\bMan\\b", "\\bman\\b", "\\bmale[s]?\\b", "\\bMale[s]?\\b", "\\bmasculin", "\\bMasculin"),
+    women = c("\\bwomen\\b", "\\bWoman\\b", "\\bwoman\\b", "\\bfemale[s]?\\b", "\\bFemale[s]?\\b", "\\bfeminin", "\\bFeminin"),
+    nonbinary = c("\\bNon-binary\\b")
+  ),
+  German = list(
+    men = c("\\bMann\\b", "\\bmann\\b", "\\bMänn", "\\bmänn", "\\bmännlich"),
+    women = c("\\bFrau\\b", "\\bfrau\\b", "\\bweiblich"),
+    nonbinary = c("\\bnicht-binär\\b", "\\bnichtbinär\\b", "\\bdivers\\b")
+  ),
+  Serbian = list(
+    men = c("\\bmuškar", "\\bMuškar", "\\bmušk", "\\bMušk"),
+    women = c("\\bžen", "\\bŽen", "\\bžensk", "\\bŽensk"),
+    nonbinary = c("\\bnebinarn")
+  ),
+  Russian = list(
+    men = c("\\bмужчин", "\\bМужчин", "\\bмужск", "\\bМужск"),
+    women = c("\\bженщин", "\\bЖенщин", "\\bженск", "\\bЖенск"),
+    nonbinary = c("\\bнебинарн", "\\bгендерквир")
+  ),
+  Czech = list(
+    men = c("\\bmuž", "\\bMuž", "\\bmužsk", "\\bMužsk"),
+    women = c("\\bžen", "\\bŽen", "\\bžensk", "\\bŽensk"),
+    nonbinary = c("\\bnebinárn", "\\bnonbinárn")
+  ),
+  Albanian = list(
+    men = c("\\bburr", "\\bBurr", "\\bmashkull"),
+    women = c("\\bgra", "\\bGra", "\\bfemër"),
+    nonbinary = c("\\bjobinar\\b", "\\bjo\\s+binar\\b")
+  )
+)
+```
+
+
+# Main
+## Extracting just the gender answers
+
+```{r}
+results_parsed <- results |> 
+  mutate(res = map2(
+    .x = answer, 
+    .y = lang,
+    .f = function(.x, .y) apply_codebook(.x, codebook = gender_patterns[[.y]]),
+    .progress = interactive()
+  )) |> 
+  unnest_wider(res)  
+```
+
+## Result validation
+
+```{r}
+results_parsed |> 
+  unnest_longer(category) |> 
+  count(category, lang, sort = TRUE) |> 
+  DT::datatable()
+```
+
+
+
+# wrap up
+
+save results:
+
+```{r}
+dir.create("data", showWarnings = FALSE)
+saveRDS(results_parsed, "data/results_final.rds")
+results_parsed |>
+  rowwise() |> 
+  mutate(
+    hit = toString(hit),
+    category = paste(category, collapse = "_")
+  ) |> 
+  rio::export("data/results_final.csv")
+```
+
+Some information about the session:
+
+```{r}
+sessionInfo()
+Sys.time()
+# note how long the script takes to (re-)run
+Sys.time() - start
+```
