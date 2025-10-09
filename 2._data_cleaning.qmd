@@ -32,8 +32,8 @@ apply_codebook <- function(string, codebook) {
       unique()
   })
   list(
-    hit = unlist(hits),
-    category = unique(names(unlist(hits)))
+    hit = unlist(hits, use.names = FALSE),
+    category = names(compact(hits))
   )
 }
 start <- Sys.time() # note start time for later
