@@ -1,0 +1,53 @@
+Noun_English,Valence,Noun_German,Noun_Serbian,Noun_Czech,Noun_Russian,Noun_Albanian,Category
+compassion,positive,Einfühlungsvermögen,Saosećajnost,Soucit,участливость,bashkëndijues/e,communality
+helpfulness to others,positive,Hilfsbereitschaft,Spremnost da se pomogne drugima,Ochota pomáhat druhým,помощь,dobishmëria për të tjerët,communality
+sympathy,positive,Mitgefühl,Empatija,Vcítění,сочувствие,zemërdhembshuri,communality
+understanding of others,positive,Verständnis,Razumevanje za druge,Porozumění druhým,понимание,kuptimi për të tjerët,communality
+sensitivity,neutral,Sensibilität,Osetljivost,Citlivost,чувствительность,ndjeshmëri,communality
+soft-heartedness,positive,Weichherzigkeit,Mekost srca,Jemnost srdce,добросердечность,zemërbutë,communality
+awareness of others' feelings,positive,Empathie,Svesnost za osećanja drugih,Empatie,понимание чувств других,Vetëdija për ndjenjat e të tjerëve,communality
+cooperation,positive,Kooperationssbereitschaft,Saradljivost,Spolupráce,сотрудничество,bashkëpunimi,communality
+devotion to others,positive,Hingabe,Posvećenost drugima,Oddanost druhým,преданность,Përkushtim ndaj të tjerëve,communality
+trust,neutral,Vertrauensseeligkeit,Poverljivost,Důvěra,доверчивость,Besueshmëri,communality
+warmth,positive,Herzlichkeit,Toplina,Vřelost,теплота,Ngrohtësi,communality
+supportiveness,positive,Unterstützung,Podrška,Podpora,поддержка,Mbështetje,communality
+worry,neutral,Besorgtheit,Zabrinutost,Starost,беспокойство,Shqetësim,weakness
+weakness,negative,Schwäche,Slabost,Slabost,слабость,Dobësi,weakness
+timidity,neutral,Schüchternheit,Bojažljivost,Plachost,робость,Ndrojtje,weakness
+submissiveness,neutral,Unterwürfigkeit,Poslušnost,Podřízenost,покорность,Nënshtrim,weakness
+fearfulness,neutral,Ängstlichkeit,Uplašenost,Bázlivost,боязливость,Frikacak,weakness
+cowardice,negative,Feigheit,Kukavičluk,Zbabělost,трусливость,zemërlepur,weakness
+dependency,neutral,Abhängigkeit,Zavisnost,Závislost,зависимость,varur,weakness
+infantility,negative,Unreife,Detinjastost,Dětinskost,незрелость,fëmijëri,weakness
+uncertainty,neutral,Ungewissheit,Nesigurnost,Nejistota,неуверенность,pasiguri,weakness
+seeking of approval,negative,Anerkennungsstreben,Potreba za odobravanjem,Touha po uznání,поиск одобрения,kërkesë për miratim,weakness
+subordinacy to others,neutral,Unterordnung,Podređenost drugima,Podřízenost druhým,подчинение,Nënshtrimi ndaj të tjerëve,weakness
+insecurity,negative,Unsicherheit,Nesigurnost,Nedostatek sebedůvěry,ненадежность,pasiguri,weakness
+demandingness,neutral,Anspruch,Zahtevnost,Požadovačnost,требовательность,kërkesë,dominance
+controllingness,negative,Kontrollbedürfnis,Sklonost kontroli,Potřeba kontroly,контроль,kontrollor,dominance
+bossiness,negative,Bestimmermentalittät (wegen Z. 33),Sklonost naređivanju,Panovačnost,властность,urdhërues,dominance
+dominancy,negative,Dominanz,Dominantnost,Dominance,доминирование,dominues,dominance
+intimidation,negative,Einschüchterung,Zastrašivanje,Zastrašování,внушение страха,frikësím,dominance
+feeling of superiority,negative,Überlegenheitsgefühl,Superiornost,Pocit nadřazenosti,чувство превосходства,superioritet,dominance
+forcefulness,neutral,Eindringlichkeit,Moć,Důraznost,воля,fuqi,dominance
+dictatorialness,negative,Herrschsucht,Diktatorsko,Diktátorství,авторитарность,diktator,dominance
+aggressiveness,negative,Aggressivität,Agresivnost,Agresivita,агрессивность,agresion,dominance
+stubbornness,neutral,Sturheit,Tvrdoglavost,Tvrdohlavost,упрямость,kokëfortësi,dominance
+arrogancy,negative,Arroganz,Arogancija,Arogance,высокомерие,arrogancë,dominance
+boastfulness,negative,Angeberei,Hvalisavost,Chvástavost,хвастливость,mburrja,dominance
+decisiveness,neutral,Entschiedenheit,Ubedljivost,Rozhodnost,решительность,vendosmëri,agency
+ambitiousness,positive,Ehrgeiz,Ambicioznost,Ctižádostivost,амбициозность,ambicie,agency
+competitiveness,neutral,Konkurrenzdenken,Takmičarski duh,Soutěživost,соревновательность,garues,agency
+competency,positive,Kompetenz,Kompetentnost,Kompetence,компетентность,kompetencë,agency
+confidence,positive,Zuversicht,Samouverenost,Sebedůvěra,уверенность,siguri,agency
+leadership abilities,positive,Führungskompetenz,Poseduje liderske sposobnosti,Vůdčí schopnosti,лидерские способности,aftësia e udhëheqjes,agency
+efficiency,positive,Effizienz,Efikasnost,Účinnost,эффективность,efikasitet,agency
+determination,positive,Entschlossenheit,Odlučnost,Odhodlání,непреклонность,Përcaktim,agency
+courageousness,positive,Mut,Hrabrost,Statečnost,смелость,Guxim,agency
+activity,positive,Tatendrang,Aktivnost,Aktivita,активность,Aktivitet,agency
+capability,positive,Fähigkeit,Sposobnost,Schopnost,способность,Aftësia,agency
+independency,positive,Unabhängigkeit,Samostalnost,Nezávislost,независимость,Pavarësi,agency
+giftedness in math,positive,Mathematikbegabung,Talenat za matematiku,Nadání na matematiku,способность к математике,Talent në matematikë,giftedness
+giftedness in science,positive,naturwissenschaftliche Begabung,Talenat za prirodne nauke,Nadání na vědu,способсность к естественным наукам,Talent në shkencë,giftedness
+giftedness in humanities,positive,geisteswissenschaftliche Begabung,Talenat za društvene nauke,Nadání na humanitní obory,способность к гуманитарным наукам,Talent në shkencat humane,giftedness
+linguistic giftedness,positive,Sprachbegabung,Talenat za jezike,Jazykové nadání,лингвистические способности,Talent në gjuhë,giftedness
