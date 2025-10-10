@@ -1,18 +1,18 @@
 ---
-title: 2. data cleaning
+  title: 2. data cleaning
 author: Johannes B. Gruber and Aleksandra Urman
 date: today
 format:
   html:
-    toc: true
-    toc_depth: 3
-    toc_float: true
-    number_sections: true
+  toc: true
+toc_depth: 3
+toc_float: true
+number_sections: true
 ---
-
-# Introduction
-
-This file does all the prompting for the article "Gender Representation in Large Language Models: A Cross-Linguistic and Cross-Model Analysis"
+  
+  # Introduction
+  
+  This file does all the prompting for the article "Gender Representation in Large Language Models: A Cross-Linguistic and Cross-Model Analysis"
 
 ## Packages
 
@@ -32,8 +32,8 @@ apply_codebook <- function(string, codebook) {
       unique()
   })
   list(
-    hit = unlist(hits, use.names = FALSE),
-    category = names(compact(hits))
+    hit = unlist(hits),
+    category = unique(names(unlist(hits)))
   )
 }
 start <- Sys.time() # note start time for later
@@ -46,41 +46,157 @@ We construct a grid of the different prompts (one for each language), the select
 ```{r}
 results <- readRDS("data/results_parsed.rds") |> 
   select(prompt_id, noun_id, Noun, Valence, lang, noun, model, seed, temperature, answer)
+
+```
+```{r}
 # dictionary for gender extraction
 gender_patterns <- list(
   English = list(
-    men = c("\\bmen\\b", "\\bMan\\b", "\\bman\\b", "\\bmale[s]?\\b", "\\bMale[s]?\\b", "\\bmasculin", "\\bMasculin"),
-    women = c("\\bwomen\\b", "\\bWoman\\b", "\\bwoman\\b", "\\bfemale[s]?\\b", "\\bFemale[s]?\\b", "\\bfeminin", "\\bFeminin"),
-    nonbinary = c("\\bNon-binary\\b")
+    men = c(
+      "\\bmen\\b", "\\bMan\\b", "\\bman\\b", "\\bMen\\b",
+      "\\bmale[s]?\\b", "\\bMale[s]?\\b", 
+      "\\bmasculin", "\\bMasculin",
+      "\\bmanhood\\b", "\\bManhood\\b",
+      "\\bmanliness\\b", "\\bManliness\\b"
+    ),
+    women = c(
+      "\\bwomen\\b", "\\bWoman\\b", "\\bwoman\\b", "\\bWomen\\b",
+      "\\bfemale[s]?\\b", "\\bFemale[s]?\\b", 
+      "\\bfeminin", "\\bFeminin",
+      "\\bwomanhood\\b", "\\bWomanhood\\b",
+      "\\bwomanliness\\b", "\\bWomanliness\\b"
+    ),
+    nonbinary = c(
+      "\\bNon-binary\\b", "\\bnon-binary\\b", "\\bnonbinary\\b", "\\bNonbinary\\b"
+    )
   ),
+  
   German = list(
-    men = c("\\bMann\\b", "\\bmann\\b", "\\bMänn", "\\bmänn", "\\bmännlich"),
-    women = c("\\bFrau\\b", "\\bfrau\\b", "\\bweiblich"),
-    nonbinary = c("\\bnicht-binär\\b", "\\bnichtbinär\\b", "\\bdivers\\b")
+    men = c(
+      "\\bMann\\b", "\\bmann\\b", "\\bMänner\\b", "\\bmänner\\b",
+      "\\bMänn", "\\bmänn",
+      "\\bmännlich", "\\bMännlich",
+      "\\bMännlichkeit\\b", "\\bmännlichkeit\\b",
+      "\\bMannhaftigkeit\\b", "\\bmannhaftigkeit\\b"
+    ),
+    women = c(
+      "\\bFrau\\b", "\\bfrau\\b", "\\bFrauen\\b", "\\bfrauen\\b",
+      "\\bweiblich", "\\bWeiblich",
+      "\\bWeiblichkeit\\b", "\\bweiblichkeit\\b",
+      "\\bFraulichkeit\\b", "\\bfraulichkeit\\b"
+    ),
+    nonbinary = c(
+      "\\bnicht-binär\\b", "\\bNicht-binär\\b",
+      "\\bnichtbinär\\b", "\\bNichtbinär\\b",
+      "\\bdivers\\b", "\\bDivers\\b",
+      "\\bDiversen\\b", "\\bdiversen\\b",
+      "\\bdiverse\\s+Personen\\b", "\\bDiverse\\s+Personen\\b",
+      "\\bdiverse\\s+personen\\b",
+      "\\bdiversen\\s+Personen\\b", "\\bDiversen\\s+Personen\\b",
+      "\\bdiversen\\s+personen\\b"
+    )
   ),
+  
   Serbian = list(
-    men = c("\\bmuškar", "\\bMuškar", "\\bmušk", "\\bMušk"),
-    women = c("\\bžen", "\\bŽen", "\\bžensk", "\\bŽensk"),
-    nonbinary = c("\\bnebinarn")
+    men = c(
+      "\\bmuškar", "\\bMuškar",
+      "\\bmuškarca\\b", "\\bMuškarca\\b",
+      "\\bmuškarcima\\b", "\\bMuškarcima\\b",
+      "\\bmušk", "\\bMušk",
+      "\\bmuževnost", "\\bMuževnost",
+      "\\bmuškost", "\\bMuškost"
+    ),
+    women = c(
+      "\\bžen", "\\bŽen",
+      "\\bžena\\b", "\\bŽena\\b",
+      "\\bženama\\b", "\\bŽenama\\b",
+      "\\bžensk", "\\bŽensk",
+      "\\bženstvenost", "\\bŽenstvenost"
+    ),
+    nonbinary = c(
+      "\\bnebinarn", "\\bNebinarn"
+    )
   ),
+  
   Russian = list(
-    men = c("\\bмужчин", "\\bМужчин", "\\bмужск", "\\bМужск"),
-    women = c("\\bженщин", "\\bЖенщин", "\\bженск", "\\bЖенск"),
-    nonbinary = c("\\bнебинарн", "\\bгендерквир")
+    men = c(
+      "\\bмужчин", "\\bМужчин",
+      "\\bмужчина\\b", "\\bМужчина\\b",
+      "\\bмужчины\\b", "\\bМужчины\\b",
+      "\\bмужск", "\\bМужск",
+      "\\bмужского\\b", "\\bМужского\\b",
+      "\\bмужественность", "\\bМужественность",
+      "\\bмужественност", "\\bМужественност",
+      "\\bмужество\\b", "\\bМужество\\b"
+    ),
+    women = c(
+      "\\bженщин", "\\bЖенщин",
+      "\\bженщина\\b", "\\bЖенщина\\b",
+      "\\bженщины\\b", "\\bЖенщины\\b",
+      "\\bженск", "\\bЖенск",
+      "\\bженского\\b", "\\bЖенского\\b",
+      "\\bженственность", "\\bЖенственность",
+      "\\bженственност", "\\bЖенственност"
+    ),
+    nonbinary = c(
+      "\\bнебинарн", "\\bНебинарн",
+      "\\bгендерквир", "\\bГендерквир"
+    )
   ),
+  
   Czech = list(
-    men = c("\\bmuž", "\\bMuž", "\\bmužsk", "\\bMužsk"),
-    women = c("\\bžen", "\\bŽen", "\\bžensk", "\\bŽensk"),
-    nonbinary = c("\\bnebinárn", "\\bnonbinárn")
+    men = c(
+      "\\bmuž", "\\bMuž",
+      "\\bmuži\\b", "\\bMuži\\b",
+      "\\bmužů\\b", "\\bMužů\\b",
+      "\\bmužsk", "\\bMužsk",
+      "\\bmužského\\b", "\\bMužského\\b",
+      "\\bmužnost", "\\bMužnost",
+      "\\bmužství\\b", "\\bMužství\\b"
+    ),
+    women = c(
+      "\\bžen", "\\bŽen",
+      "\\bžena\\b", "\\bŽena\\b",
+      "\\bženy\\b", "\\bŽeny\\b",
+      "\\bžensk", "\\bŽensk",
+      "\\bženského\\b", "\\bŽenského\\b",
+      "\\bženství\\b", "\\bŽenství\\b",
+      "\\bžennost", "\\bŽennost"
+    ),
+    nonbinary = c(
+      "\\bnebinárn", "\\bNebinárn",
+      "\\bnonbinárn", "\\bNonbinárn"
+    )
   ),
+  
   Albanian = list(
-    men = c("\\bburr", "\\bBurr", "\\bmashkull"),
-    women = c("\\bgra", "\\bGra", "\\bfemër"),
-    nonbinary = c("\\bjobinar\\b", "\\bjo\\s+binar\\b")
+    men = c(
+      "\\bburr", "\\bBurr",
+      "\\bburra\\b", "\\bBurra\\b",
+      "\\bburrave\\b", "\\bBurrave\\b",
+      "\\bmashkull", "\\bMashkull",
+      "\\bmashkuj\\b", "\\bMashkuj\\b",
+      "\\bmashkullor", "\\bMashkullor",
+      "\\bburrëri", "\\bBurrëri"
+    ),
+    women = c(
+      "\\bgra\\b", "\\bGra\\b",
+      "\\bgrave\\b", "\\bGrave\\b",
+      "\\bgrua\\b", "\\bGrua\\b",
+      "\\bgruaja\\b", "\\bGruaja\\b",
+      "\\bfemër", "\\bFemër",
+      "\\bfemra\\b", "\\bFemra\\b",
+      "\\bfemëror", "\\bFemëror",
+      "\\bgruar", "\\bGruar"
+    ),
+    nonbinary = c(
+      "\\bjobinar", "\\bJobinar",
+      "\\bjo\\s+binar", "\\bJo\\s+binar",
+      "\\bjo-binar", "\\bJo-binar"
+    )
   )
 )
 ```
-
 
 # Main
 ## Extracting just the gender answers
@@ -95,7 +211,12 @@ results_parsed <- results |>
   )) |> 
   unnest_wider(res)  
 ```
+## Result empties
 
+```{r}
+empties<-results_parsed[results_parsed$hit=="NULL",]
+print(summary(as.factor(empties$model)))
+```
 ## Result validation
 
 ```{r}
@@ -110,8 +231,8 @@ results_parsed |>
 # wrap up
 
 save results:
-
-```{r}
+  
+  ```{r}
 dir.create("data", showWarnings = FALSE)
 saveRDS(results_parsed, "data/results_final.rds")
 results_parsed |>
@@ -124,8 +245,8 @@ results_parsed |>
 ```
 
 Some information about the session:
-
-```{r}
+  
+  ```{r}
 sessionInfo()
 Sys.time()
 # note how long the script takes to (re-)run
