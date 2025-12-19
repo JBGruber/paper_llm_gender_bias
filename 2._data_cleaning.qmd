@@ -232,7 +232,7 @@ results_parsed |>
 
 save results:
   
-  ```{r}
+```{r}
 dir.create("data", showWarnings = FALSE)
 saveRDS(results_parsed, "data/results_final.rds")
 results_parsed |>
@@ -246,7 +246,7 @@ results_parsed |>
 
 Some information about the session:
   
-  ```{r}
+```{r}
 sessionInfo()
 Sys.time()
 # note how long the script takes to (re-)run
