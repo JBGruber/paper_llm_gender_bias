@@ -28,15 +28,16 @@ library(rollama)
 # options(rollama_server = c("http://localhost:11434", "http://192.168.2.45:11434"))
 
 # special req perform with cache and load balancing
-req_perform_parallel2 <- function(reqs,
-                                  paths = NULL,
-                                  on_error = "continue",
-                                  progress = TRUE,
-                                  skip_unfinished = FALSE,
-                                  max_active = 10) {
+req_perform_parallel2 <- function(
+  reqs,
+  paths = NULL,
+  on_error = "continue",
+  progress = TRUE,
+  skip_unfinished = FALSE,
+  max_active = 3
+) {
   exists <- file.exists(paths)
   resps <- vector("list", length = length(reqs))
-  resps[which(exists)] <- paths[exists]
 
   if (skip_unfinished) {
     resps[which(!exists)] <- NA_character_
@@ -51,25 +52,25 @@ req_perform_parallel2 <- function(reqs,
 
   check_model_installed(models)
 
-  if (progress) progress <- list(
-    clear = TRUE,
-    format = "Prompting {cli::pb_bar} | {cli::pb_percent} [{cli::pb_current}/{cli::pb_total} | rate: {cli::pb_rate} | ETA: {cli::pb_eta}]",
-    format_done = "Done running {length(reqs)} prompts!"
-  )
+  if (progress) {
+    progress <- list(
+      clear = TRUE,
+      format = "Prompting {cli::pb_bar} | {cli::pb_percent} [{cli::pb_current}/{cli::pb_total} | rate: {cli::pb_rate} | ETA: {cli::pb_eta}]",
+      format_done = "Done running {length(reqs)} prompts!"
+    )
+  }
 
-  resps[which(!exists)] <- httr2::req_perform_parallel(
-    reqs[!exists], 
-    paths = paths[!exists], 
-    on_error = on_error, 
-    progress = progress, 
+  invisible(httr2::req_perform_parallel(
+    reqs[!exists],
+    paths = paths[!exists],
+    on_error = on_error,
+    progress = progress,
     max_active = max_active
-  ) |> 
-    # I'm only extracting the body, which contains the path to the json file
-    # to make this compatible with the other output
-    map_chr("body")
-  
+  ))
+
   # verify that all responses can be parsed
   if (!all(map_lgl(paths, check_json_response))) {
+    cli::cli_alert_warning("Some responses were corrupted, rerunning failed requests")
     # call itself to execute again
     resps <- req_perform_parallel2(
       reqs = reqs,
@@ -79,12 +80,12 @@ req_perform_parallel2 <- function(reqs,
       max_active = max_active
     )
   }
-  return(resps)
+  return(paths)
 }
 
 # parse cached responses
 parse_json_response <- function(r) {
-  jsonlite::read_json(r) |> 
+  jsonlite::read_json(r) |>
     pluck("message", "content")
 }
 
@@ -95,12 +96,14 @@ check_json_response <- function(json_file) {
     cli::cli_warn("Corrupt json file will be deleted:  {json_file}")
     file.remove(json_file)
     return(FALSE)
-  } 
+  }
   if (pluck_exists(res, "error")) {
-    cli::cli_warn("Result contains error and will be deleted:  {json_file}.\n Error:\n{res$error}")
+    cli::cli_warn(
+      "Result contains error and will be deleted:  {json_file}.\n Error:\n{res$error}"
+    )
     file.remove(json_file)
     return(FALSE)
-  } 
+  }
   if (!pluck_exists(res, "message", "content")) {
     cli::cli_warn("Content missing. file will be deleted: {json_file}")
     file.remove(json_file)
@@ -117,9 +120,13 @@ We construct a grid of the different prompts (one for each language), the select
 
 ```{r models}
 prompts <- read_csv("input/prompts.csv", col_types = "cc")
-nouns <- read_csv("input/nouns.csv", col_types = "icccccccc") |> 
-  pivot_longer(cols = starts_with("Noun_"), names_to = "lang", values_to = "noun") |> 
-  mutate(lang = str_remove(lang, "Noun_")) |> 
+nouns <- read_csv("input/nouns.csv", col_types = "icccccccc") |>
+  pivot_longer(
+    cols = starts_with("Noun_"),
+    names_to = "lang",
+    values_to = "noun"
+  ) |>
+  mutate(lang = str_remove(lang, "Noun_")) |>
   rename(noun_id = id)
 models <- c(
   "deepseek-r1:1.5b",
@@ -159,27 +166,33 @@ In previous iterations, we noticed that Ollama does some caching of replies.
 So me make sure to first run all prompts in iteration 1, then all prompts in iteration 2 and so on.
 
 ```{r prompts}
-all_prompts <- nouns |> 
-  left_join(prompts, by = c("lang" = "version")) |> 
-  mutate(prompt = paste(prompt, noun, sep = "\n"),
-         # schema for structured outputs. Limits the possible answers the models can give
-         schema = map(answers, function(a) {
-           a <- str_split(a, ";")[[1]]
-           list(type = "object", 
-                properties = list(
-                  association = list(
-                    type = "string", 
-                    enum = a
-                  )
-                ),
-                required = "association"
-           )
-         })) |> 
-  expand_grid(model = models, seed = 1:10, temperature = seq(0, 1, 0.2)) |> 
-  mutate(prompt_id = tolower(paste(lang, noun, model, temperature, seed, sep = "_")), .before = 1L) |>
-  mutate(prompt_id = str_remove(prompt_id, "/")) |> 
+all_prompts <- nouns |>
+  left_join(prompts, by = c("lang" = "version")) |>
+  mutate(
+    prompt = paste(prompt, noun, sep = "\n"),
+    # schema for structured outputs. Limits the possible answers the models can give
+    schema = map(answers, function(a) {
+      a <- str_split(a, ";")[[1]]
+      list(
+        type = "object",
+        properties = list(
+          association = list(
+            type = "string",
+            enum = a
+          )
+        ),
+        required = "association"
+      )
+    })
+  ) |>
+  expand_grid(model = models, seed = 1:5, temperature = seq(0, 1, 0.2)) |>
+  mutate(
+    prompt_id = tolower(paste(lang, noun, model, temperature, seed, sep = "_")),
+    .before = 1L
+  ) |>
+  mutate(prompt_id = str_remove(prompt_id, "/")) |>
   # for temperature 0, the seed does not change the outcome, so we don't need it
-  filter(!(temperature == 0 & seed > 1L)) |> 
+  filter(!(temperature == 0 & seed > 1L)) |>
   # arrange by model to make sure no unnecessary loading and unloading of models happen
   # but also arrange by seed to not run same prompt + model back to back
   arrange(seed, temperature, model)
@@ -189,17 +202,22 @@ I use rollama to prepare the requests to the servers, which are then made with t
 
 ```{r grid}
 dir.create("cache", showWarnings = FALSE)
-grid <- all_prompts |> 
-  mutate(req = pmap(list(prompt, model, schema, seed, temperature), function(p, m, s, sd, temp) {
-    query(
-      q = p,
-      model = m,
-      # we deactivated the structured output feature because thinking models (like gpt-oss) do not provide any answer at all
-      # format = s,
-      output = "httr2_request",
-      model_params = list(seed = sd, temperature = temp)
-    )[[1]]
-  })) |> 
+grid <- all_prompts |>
+  mutate(
+    req = pmap(
+      list(prompt, model, schema, seed, temperature),
+      function(p, m, s, sd, temp) {
+        query(
+          q = p,
+          model = m,
+          # we deactivated the structured output feature because thinking models (like gpt-oss) do not provide any answer at all
+          # format = s,
+          output = "httr2_request",
+          model_params = list(seed = sd, temperature = temp)
+        )[[1]]
+      }
+    )
+  ) |>
   mutate(path = paste0("cache/", prompt_id, ".json"))
 glimpse(grid)
 ```
@@ -207,8 +225,10 @@ glimpse(grid)
 In total, the grid contains `r nrow(grid)` requests to Ollama
 
 ```{r inference}
-results <- grid |> 
-  mutate(resp = req_perform_parallel2(req, paths = path, skip_unfinished = TRUE)) |> 
+results <- grid |>
+  mutate(
+    resp = req_perform_parallel2(req, paths = path, skip_unfinished = FALSE)
+  ) |>
   # remove when all prompting is done
   filter(!is.na(resp))
 ```
@@ -217,45 +237,45 @@ Results are written into a cache directory.
 When a prompt has already been answered, we load the answer from disk instead of querying again.
 
 ```{r parsing}
-results_parsed <- results |> 
+results_parsed <- results |>
   mutate(answer = map_chr(resp, parse_json_response))
 ```
 
 Quick glance at results:
 
 ```{r}
-results_parsed |> 
+results_parsed |>
   count(lang, answer, sort = TRUE)
 ```
 
 Note how much time was spent in total:
 
 ```{r time_spent}
-time_spent <- results |> 
-  pull(resp) |> 
+time_spent <- results |>
+  pull(resp) |>
   map(function(r) {
-  res <- jsonlite::read_json(r)
-  tibble(
-    model          = pluck(res, "model"),
-    total_duration = pluck(res, "total_duration"),
-    eval_duration  = pluck(res, "eval_duration")
-  )
-}) |>
+    res <- jsonlite::read_json(r)
+    tibble(
+      model = pluck(res, "model"),
+      total_duration = pluck(res, "total_duration"),
+      eval_duration = pluck(res, "eval_duration")
+    )
+  }) |>
   bind_rows()
-  
-time_spent_summary <- time_spent |> 
-  group_by(model) |> 
+
+time_spent_summary <- time_spent |>
+  group_by(model) |>
   summarise(
     total_duration = sum(total_duration, na.rm = TRUE),
     eval_duration = sum(eval_duration, na.rm = TRUE)
-  ) |> 
-  arrange(desc(eval_duration)) |> 
+  ) |>
+  arrange(desc(eval_duration)) |>
   mutate(
     total_duration = make_difftime(total_duration / 1e9, units = "h"),
     eval_duration = make_difftime(eval_duration / 1e9, units = "h")
   )
 
-time_spent_summary |> 
+time_spent_summary |>
   knitr::kable()
 ```
 
