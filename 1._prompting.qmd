@@ -228,9 +228,7 @@ In total, the grid contains `r nrow(grid)` requests to Ollama
 results <- grid |>
   mutate(
     resp = req_perform_parallel2(req, paths = path, skip_unfinished = FALSE)
-  ) |>
-  # remove when all prompting is done
-  filter(!is.na(resp))
+  )
 ```
 
 Results are written into a cache directory.
