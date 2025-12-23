@@ -1,23 +1,21 @@
 ---
-  title: 2. data cleaning
+title: 2. data cleaning
 author: Johannes B. Gruber and Aleksandra Urman
 date: today
 format:
   html:
-  toc: true
+    toc: true
 toc_depth: 3
 toc_float: true
 number_sections: true
 ---
   
-  # Introduction
+# Introduction
   
-  This file does all the prompting for the article "Gender Representation in Large Language Models: A Cross-Linguistic and Cross-Model Analysis"
+This file cleans the raw data by applying a simply dictionary of the main categories we analyse in "Gender Representation in Large Language Models: A Cross-Linguistic and Cross-Model Analysis"
 
 ## Packages
 
-We use Ollama with the R package rollama for the prompting.
-To make the prompting more efficient and make sure errors can be easily recovered from, I use a custom version of `httr2::req_perform_parallel()`, which rollama uses under the hood.
 
 ```{r setup}
 #| include: false
