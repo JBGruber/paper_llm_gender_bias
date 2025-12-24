@@ -239,7 +239,7 @@ results_parsed |>
     hit = toString(hit),
     category = paste(category, collapse = "_")
   ) |> 
-  rio::export("data/results_final.csv")
+  rio::export("data/results_final.csv.tar.gz")
 ```
 
 Some information about the session:
