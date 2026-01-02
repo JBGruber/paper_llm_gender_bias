@@ -1,0 +1,1362 @@
+---
+title: 3. Analyses
+author: Aleksandra Urman, Ana Jovancevic, and Johannes B. Gruber 
+date: today
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-summary: "Show the code"
+    embed-resources: true
+    toc_depth: 3
+    toc_float: true
+  docx: default
+number_sections: true
+---
+  
+# Introduction
+  
+This file contains the code to reproduce all figures, plots and in-text numbers in "Gender Representation in Large Language Models: A Cross-Linguistic and Cross-Model Analysis"
+
+## Packages
+
+```{r setup}
+#| include: false
+library(tidyverse)
+library(infer)
+library(DescTools)
+library(knitr)
+library(kableExtra)
+opts_chunk$set(
+  echo = knitr::is_html_output(),
+  fig.width = 8.27,
+  fig.height = 5.85,
+  dpi = 300,
+  comment = "#>"
+)
+
+# create folders for plots
+dir.create("figures/png", recursive = TRUE, showWarnings = FALSE)
+dir.create("figures/svg", recursive = TRUE, showWarnings = FALSE)
+
+# Wrapper to suppress chi-square approximation warnings
+# The "Chi-squared approximation may be incorrect" warning appears when expected
+# cell counts are < 5. With our large sample sizes, the chi-square approximation
+# remains valid despite low expected counts in some cells, so we suppress this
+# specific warning.
+chisq.test2 <- function(x, ...) {
+  withCallingHandlers(
+    chisq.test(x, ...),
+    warning = function(w) {
+      if (grepl("Chi-squared.approximation.may.be.incorrect", w)) {
+        invokeRestart("muffleWarning")
+      }
+    }
+  )
+}
+
+# Custom theme
+paper_theme <- function(...) {
+  font <- "Noto" # default CCR font
+  theme_minimal(base_family = font) %+replace%
+    theme(
+      panel.grid.minor = element_blank(),
+      panel.grid.major = element_line(
+        linetype = "dashed",
+        linewidth = 0.15,
+        colour = "#999999"
+      ),
+      plot.margin = margin(20, 20, 20, 20),
+
+      # facets
+      strip.background = element_rect(fill = "gray92", color = "grey70"),
+      strip.text = element_text(
+        family = font,
+        size = 14,
+        face = "bold",
+        margin = margin(b = 5, t = 5)
+      ),
+
+      # fonts
+      text = element_text(family = font, size = 10),
+      legend.text = element_text(family = font, size = 8.5, colour = "grey30"),
+      legend.title = element_text(
+        family = font,
+        size = 10,
+        face = "bold",
+        colour = "grey30"
+      ),
+      axis.text = element_text(family = font, size = 10),
+
+      # legend
+      legend.position = "bottom",
+      legend.justification = "left",
+      legend.direction = "horizontal"
+    ) %+replace%
+    theme(...)
+}
+
+theme_set(paper_theme())
+update_geom_defaults("text", list(family = "Noto", size = 2.5))
+
+# custom colours
+gender_colours_main <- c(
+  "Men only" = "#56B4E9",
+  "Women only" = "#CC79A7",
+  "Non-binary only" = "#E69F00",
+  "Men + Women" = "#F0E442",
+  "Women + Nonbinary" = "#D55E00",
+  "Men + Nonbinary" = "#999999",
+  "All three" = "#009E73"
+)
+scale_fill_paper <- function(...) {
+  list(
+    scale_fill_manual(
+      values = gender_colours_main,
+      guide = guide_legend(reverse = TRUE),
+      ...
+    )
+  )
+}
+
+start <- Sys.time() # note start time for later
+```
+
+## Data
+
+We construct a grid of the different prompts (one for each language), the selected nouns, and a range of different models.
+
+```{r data}
+results <- readRDS("data/results_final.rds")
+categories <- read.csv("input/filtered_categories.csv") |>
+  select(Noun = Noun_English, noun_category = Category)
+```
+
+```{r wrangling}
+results_classified <- results |>
+  mutate(
+    Noun = tolower(Noun),
+    gender_pattern = map_chr(category, function(cats) {
+      if (is.null(cats)) {
+        return("None/Unclear")
+      }
+      cats <- tools::toTitleCase(unique(cats))
+      if (length(cats) == 1) {
+        return(paste(cats, "only"))
+      }
+      if (length(cats) == 3) {
+        return("All three")
+      }
+      return(paste(cats, collapse = " + "))
+    }),
+    gender_pattern = str_replace(
+      gender_pattern,
+      fixed("Nonbinary only"),
+      "Non-binary only"
+    ),
+    gender_pattern_fct = fct_relevel(
+      gender_pattern,
+      rev(c(
+        "Men only",
+        "Women only",
+        "Non-binary only",
+        "Men + Women",
+        "Men + Nonbinary",
+        "Women + Nonbinary",
+        "All three"
+      ))
+    )
+  ) |>
+  left_join(categories, by = "Noun")
+```
+
+
+# Main
+## Table 1
+
+| Model | English | German | Serbian | Russian | Czech | Albanian |
+|-------|---------|--------|---------|---------|-------|----------|
+| deepseek-r1:*[^deepseek-r1] | ✓ | - | - | - | - | - |
+| gemma:2b/7b[^gemma2] | ✓ | - | - | - | - | - |
+| gemma3:*[^gemma3] | ✓ | ✓ | - | - | - | - |
+| gpt-oss:*[^gpt-oss] | ✓ | - | - | - | - | - |
+| llama3:8b[^llama3] | ✓ | - | - | - | - | - |
+| llama3.1:*[^llama31] | ✓ | ✓ | - | - | - | - |
+| llama3.2:*[^llama32] | ✓ | ✓ | - | - | - | - |
+| llama4:latest[^llama4] | ✓ | ✓ | - | - | - | - |
+| mistral:latest[^mistral] | ✓ | ✓ | - | - | - | - |
+| mistral-small3.1:latest[^mistral-small] | ✓ | ✓ | ✓ | ✓ | - | - |
+| qwen2.5:*[^qwen] | ✓ | ✓ | - | ✓ | - | - |
+
+: Official language support for LLMs used in this study. Based on systematic verification of official documentation from model providers (January 2025). *Legend*: ✓ = Officially supported with explicit documentation; - = Not officially supported or no explicit documentation available.
+
+[^deepseek-r1]: Only English and Chinese officially supported ([GitHub](https://github.com/deepseek-ai/DeepSeek-R1); [Hugging Face](https://huggingface.co/deepseek-ai/DeepSeek-R1)).
+[^gemma2]: Only English officially supported ([Model Card](https://ai.google.dev/gemma/docs/core/model_card)).
+[^gemma3]: 140+ languages claimed, specific languages not listed ([Model Card](https://ai.google.dev/gemma/docs/core/model_card_3)).
+[^gpt-oss]: Model card shows benchmarks for Arabic, Bengali, Chinese, French, German, Hindi, Indonesian, Italian, Japanese, Korean, Portuguese, Spanish, Swahili, and Yoruba. Serbian, Russian, Czech, and Albanian not explicitly listed ([Model Card](https://arxiv.org/pdf/2508.10925); also see [OpenAI announcement](https://openai.com/index/introducing-gpt-oss/); [GitHub](https://github.com/openai/gpt-oss)).
+[^llama3]: "High-quality non-English data that covers over 30 languages", specific languages not listed ([Meta Blog](https://ai.meta.com/blog/meta-llama-3/)).
+[^llama31]: Officially supports 8 languages (English, German, French, Italian, Portuguese, Hindi, Spanish, Thai), trained on a broader collection of languages than these 8 supported languages, specific languages not listed ([Model Card](https://github.com/meta-llama/llama-models/blob/main/models/llama3_1/MODEL_CARD.md)).
+[^llama32]: Officially supports 8 languages (English, German, French, Italian, Portuguese, Hindi, Spanish, Thai), trained on a broader collection of languages than these 8 supported languages, specific languages not listed ([Model Card](https://github.com/meta-llama/llama-models/blob/main/models/llama3_2/MODEL_CARD.md)).
+[^llama4]: Officially supports 12 languages (Arabic, English, French, German, Hindi, Indonesian, Italian, Portuguese, Spanish, Tagalog, Thai, Vietnamese), pre-training includes 200 total languages, specific languages not listed ([Model Card](https://github.com/meta-llama/llama-models/blob/main/models/llama4/MODEL_CARD.md)).
+[^mistral]: Neither the official announcement nor the model card mention supported languages other than English ([model announcement](https://mistral.ai/news/announcing-mistral-7b); [Model Card](https://huggingface.co/mistralai/Mistral-7B-v0.1)).
+[^mistral-small]: Explicitly languages *including* English, French, German, Greek, Hindi, Indonesian, Italian, Japanese, Korean, Malay, Nepali, Polish, Portuguese, Romanian, Russian, Serbian, Spanish, Swedish, Turkish, Ukrainian, Vietnamese, Arabic, Bengali, Chinese, Farsi ([Model Card](https://huggingface.co/mistralai/Mistral-Small-3.1-24B-Instruct-2503); [Mistral AI](https://mistral.ai/news/mistral-small-3-1)).
+[^qwen]: 29+ languages officially supported, including Chinese, English, French, Spanish, Portuguese, German, Italian, Russian, Japanese, Korean, Vietnamese, Thai, and Arabic. Serbian, Czech, and Albanian not explicitly listed ([GitHub](https://github.com/QwenLM/Qwen2.5); [Model Card](https://www.alibabacloud.com/help/en/model-studio/what-is-qwen-llm)).
+
+## Table 2
+
+RQ1: Does gender representation differ across stereotype dimensions?
+
+```{r tbl2}
+#| tbl-cap: "Standardized Residuals from Chi-Square Test of Independence by Stereotype Dimension and Association Pattern"
+df_rq1 <- results_classified |>
+  filter(gender_pattern != "None/Unclear")
+contingency_table <- table(df_rq1$noun_category, df_rq1$gender_pattern)
+chi_test <- chisq.test2(contingency_table)
+cramers_v <- CramerV(contingency_table)
+residuals_df <- as.data.frame.matrix(chi_test$stdres) |>
+  rownames_to_column("Category") |>
+  pivot_longer(
+    -Category,
+    names_to = "Gender_Pattern",
+    values_to = "Std_Residual"
+  ) |>
+  mutate(
+    Significance = case_when(
+      abs(Std_Residual) > 3 ~ "***",
+      abs(Std_Residual) > 2.58 ~ "**",
+      abs(Std_Residual) > 1.96 ~ "*",
+      TRUE ~ ""
+    ),
+    Display = sprintf("%.2f%s", Std_Residual, Significance)
+  ) |>
+  select("Stereotype Dimension" = Category, Gender_Pattern, Display) |>
+  pivot_wider(names_from = Gender_Pattern, values_from = Display)
+kable(residuals_df)
+```
+
+
+## Figure 1
+
+```{r fig-1}
+#| fig-cap: "Gender Association Patterns by Stereotype Dimension"
+category_summary <- df_rq1 |>
+  group_by(noun_category, gender_pattern = gender_pattern_fct) |>
+  summarise(n = n(), .groups = "drop") |>
+  group_by(noun_category) |>
+  mutate(
+    percentage = (n / sum(n))
+  ) |>
+  # Keep main patterns for clarity
+  filter(
+    gender_pattern %in%
+      c("Men only", "Women only", "Non-binary only", "All three", "Men + Women")
+  )
+
+category_summary_labeled <- category_summary |>
+  group_by(noun_category) |>
+  mutate(
+    label_y = cumsum(percentage) - percentage / 2,
+    label_text = ifelse(percentage > 3, paste0(round(percentage, 1), "%"), "")
+  )
+
+p1 <- ggplot(
+  category_summary,
+  aes(x = noun_category, y = percentage, fill = gender_pattern)
+) +
+  geom_col(
+    position = position_dodge(width = 0.85),
+    width = 0.8
+  ) +
+  geom_text(
+    aes(
+      y = percentage / 2,
+      label = ifelse(
+        percentage > 0.05,
+        scales::percent(percentage, accuracy = 1),
+        ""
+      )
+    ),
+    position = position_dodge(width = 0.85),
+    angle = 90,
+    fontface = "bold"
+  ) +
+  scale_y_continuous(
+    labels = scales::percent,
+    expand = expansion(mult = c(0, 0.12)),
+    breaks = seq(0, 0.8, 0.2)
+  ) +
+  labs(
+    x = "Stereotype Dimension",
+    y = NULL,
+    fill = "Gender Pattern"
+  ) +
+  guides(fill = guide_legend(nrow = 1)) +
+  paper_theme(panel.grid.major.x = element_blank()) +
+  scale_fill_paper()
+
+ggsave(
+  "figures/png/figure_1.png",
+  p1,
+  width = 210,
+  height = 148.5,
+  units = "mm",
+  dpi = 300
+)
+ggsave(
+  "figures/svg/figure_1.svg",
+  p1,
+  width = 210,
+  height = 148.5,
+  units = "mm",
+  dpi = 300
+)
+print(p1)
+```
+
+## Table 3
+
+RQ2: Does gender representation vary across languages?
+
+```{r rq2-filter}
+# we remove results that do not correspond to a predefined noun category
+df_rq2 <- results_classified |>
+  filter(gender_pattern != "None/Unclear", !is.na(noun_category), !is.na(lang))
+```
+
+Sample size: `r nrow(df_rq2)`
+
+::: {.callout-tip title="Detailed results" collapse="true"}
+```{r tbl-3-calc}
+# Three-way chi-square
+contingency_3way <- table(
+  df_rq2$lang,
+  df_rq2$noun_category,
+  df_rq2$gender_pattern
+)
+flat_table <- ftable(contingency_3way)
+chi_3way <- chisq.test2(flat_table)
+cramers_v_3way <- CramerV(flat_table)
+
+category_results <- df_rq2 |>
+  nest_by(noun_category) |>
+  mutate(
+    contingency = list(table(data$lang, data$gender_pattern)),
+    chi_test = list(chisq.test2(contingency)),
+    chi_square = chi_test$statistic,
+    df = chi_test$parameter,
+    p_value = chi_test$p.value,
+    cramers_v = CramerV(contingency)
+  ) |>
+  ungroup()
+
+# Print detailed results
+category_results |>
+  mutate(
+    output = sprintf(
+      "%s: χ²(%d) = %.2f, p < .001, Cramér's V = %.3f",
+      noun_category,
+      df,
+      chi_square,
+      cramers_v
+    )
+  ) |>
+  pull(output) |>
+  walk(~ cat(.x, "\n"))
+cat("\n")
+```
+
+:::
+
+```{r tbl-3}
+#| tbl-cap: "Language Differences in Gender Association Patterns by Stereotype Dimension"
+category_results |>
+  select(
+    Dimension = noun_category,
+    Chi_square = chi_square,
+    df,
+    p_value
+  ) |>
+  mutate(
+    Chi_square = sprintf("%.2f", Chi_square),
+    p_value = "< .001",
+    Cramers_V = sprintf("%.3f", category_results$cramers_v)
+  ) |>
+  arrange(desc(as.numeric(Cramers_V))) |>
+  kable()
+```
+
+## Figure 2
+
+```{r}
+#| fig-cap: "Gender Association Patterns by Language and Stereotype Dimension"
+lang_cat_grouped <- df_rq2 |>
+  group_by(lang, noun_category, gender_pattern) |>
+  summarise(n = n(), .groups = "drop") |>
+  group_by(lang, noun_category) |>
+  mutate(
+    total = sum(n),
+    percentage = n / total
+  ) |>
+  filter(gender_pattern %in% c("Men only", "Women only", "Non-binary only"))
+
+p2 <- ggplot(
+  lang_cat_grouped,
+  aes(x = percentage, y = fct_rev(noun_category), fill = gender_pattern)
+) +
+  geom_col(position = position_dodge(width = 0.85), width = 0.8) +
+  geom_text(
+    aes(
+      x = percentage / 2,
+      label = ifelse(
+        percentage > 0.05,
+        scales::percent(percentage, accuracy = 1),
+        ""
+      )
+    ),
+    colour = "grey10",
+    position = position_dodge(width = 0.85),
+    fontface = "bold"
+  ) +
+  facet_wrap(~lang, nrow = 2) +
+  scale_x_continuous(
+    labels = scales::percent,
+    expand = expansion(mult = c(0, 0.12)),
+    breaks = seq(0, 0.80, 0.20)
+  ) +
+  labs(
+    x = NULL,
+    y = NULL,
+    fill = "Gender Pattern"
+  ) +
+  paper_theme(panel.grid.major.y = element_blank()) +
+  scale_fill_paper()
+
+ggsave(
+  "figures/png/figure_2.png",
+  p2,
+  width = 210,
+  height = 148.5,
+  units = "mm",
+  dpi = 300
+)
+ggsave(
+  "figures/svg/figure_2.svg",
+  p2,
+  width = 210,
+  height = 148.5,
+  units = "mm",
+  dpi = 300
+)
+print(p2)
+```
+
+## Figure 3
+
+RQ3a: Do different models vary in gender representation?
+
+```{r rq3-filter}
+df_rq3a <- results_classified |>
+  filter(
+    gender_pattern != "None/Unclear",
+    !is.na(noun_category),
+    !is.na(lang)
+  ) |>
+  mutate(
+    model_family = case_when(
+      str_detect(model, "gemma") ~ "Gemma",
+      str_detect(model, "qwen") ~ "Qwen",
+      str_detect(model, "llama") ~ "Llama",
+      str_detect(model, "mistral") ~ "Mistral",
+      str_detect(model, "phi") ~ "Phi",
+      str_detect(model, "deepseek") ~ "DeepSeek",
+      TRUE ~ "Other"
+    )
+  )
+```
+
+Sample size: `r nrow(df_rq3a)`
+
+```{r}
+#| tbl-cap: "Extra: Within-family variation"
+# Within-family variation
+family_consistency <- df_rq3a |>
+  group_by(model_family, model, gender_pattern) |>
+  summarise(n = n(), .groups = "drop") |>
+  group_by(model_family, model) |>
+  mutate(total = sum(n), percentage = (n / total) * 100) |>
+  group_by(model_family, gender_pattern) |>
+  summarise(
+    n_models = n(),
+    mean_pct = mean(percentage),
+    sd_pct = sd(percentage),
+    min_pct = min(percentage),
+    max_pct = max(percentage),
+    range = max_pct - min_pct,
+    .groups = "drop"
+  ) |>
+  arrange(model_family, desc(mean_pct))
+
+family_summary <- family_consistency |>
+  group_by(model_family) |>
+  summarise(
+    avg_sd = mean(sd_pct, na.rm = TRUE),
+    max_range = max(range, na.rm = TRUE)
+  ) |>
+  arrange(desc(avg_sd))
+
+kable(family_summary)
+```
+
+```{r}
+#| fig-cap: "Distributions of gender association patterns by model"
+model_plot_data <- df_rq3a |>
+  mutate(
+    gender_pattern = fct_relevel(
+      gender_pattern,
+      rev(c(
+        "Men only",
+        "Women only",
+        "Non-binary only",
+        "Men + Women",
+        "Men + Nonbinary",
+        "Women + Nonbinary",
+        "All three"
+      ))
+    )
+  ) |>
+  group_by(model, gender_pattern) |>
+  summarise(n = n(), .groups = "drop") |>
+  group_by(model) |>
+  mutate(
+    total = sum(n),
+    percentage = (n / total)
+  )
+
+model_plot_labeled <- model_plot_data |>
+  arrange(model, desc(gender_pattern)) |>
+  group_by(model) |>
+  mutate(
+    label_x = cumsum(percentage) - percentage / 2,
+    label_text = ifelse(
+      percentage > 0.05,
+      scales::percent(percentage, accuracy = 1),
+      ""
+    )
+  )
+
+p3 <- ggplot(
+  model_plot_labeled,
+  aes(x = percentage, y = model, fill = gender_pattern, label = label_text)
+) +
+  geom_col(position = "stack") +
+  scale_x_continuous(labels = scales::percent) +
+  geom_text(
+    aes(x = label_x),
+    size = 2.5,
+    colour = "black",
+    fontface = "bold"
+  ) +
+  labs(
+    x = NULL,
+    y = NULL,
+    fill = "Gender Pattern"
+  ) +
+  scale_fill_paper() +
+  guides(fill = guide_legend(nrow = 2, byrow = TRUE))
+
+ggsave(
+  "figures/png/figure_3.png",
+  p3,
+  width = 210,
+  height = 148.5,
+  units = "mm",
+  dpi = 300
+)
+ggsave(
+  "figures/svg/figure_3.svg",
+  p3,
+  width = 210,
+  height = 148.5,
+  units = "mm",
+  dpi = 300
+)
+print(p3)
+```
+
+```{r}
+#| fig-cap: "Alternative plot: Distributions of gender association patterns by model (facetted)"
+#| fig-width: 6
+#| fig-height: 14
+#| dpi: 300
+# Prepare data for faceted plot
+model_plot_faceted <- model_plot_data |>
+  # Order models by a meaningful metric (e.g., total count or family)
+  left_join(
+    df_rq3a |>
+      group_by(model) |>
+      summarise(model_total = n(), .groups = "drop"),
+    by = "model"
+  )
+
+p3_faceted <- ggplot(
+  model_plot_faceted,
+  aes(x = percentage, y = reorder(model, model_total), fill = gender_pattern)
+) +
+  geom_col(show.legend = FALSE) +
+  geom_text(
+    aes(label = ifelse(percentage > 3, paste0(round(percentage, 1), "%"), "")),
+    hjust = -0.1,
+    size = 2.3,
+    fontface = "bold"
+  ) +
+  facet_wrap(~gender_pattern, ncol = 2, scales = "free_x") +
+  scale_x_continuous(
+    labels = scales::percent,
+    limits = c(0, max(model_plot_faceted$percentage) * 1.15)
+  ) +
+  labs(
+    title = "Gender Association Patterns by Model",
+    subtitle = "Faceted by pattern type for direct comparison across models",
+    x = "Model",
+    y = "Percentage (%)"
+  ) +
+  scale_fill_paper()
+
+print(p3_faceted)
+```
+
+## Supplementary Analysis: Variability Across Gender Patterns
+
+This section is not reported in the main text but provides additional insights into pattern consistency across models.
+
+```{r}
+#| tbl-cap: "Supplementary: Coefficient of Variation by Gender Pattern"
+# Calculate coefficient of variation for each pattern
+pattern_variability <- model_plot_data |>
+  group_by(gender_pattern) |>
+  summarise(
+    n_models = n(),
+    mean_pct = mean(percentage),
+    sd_pct = sd(percentage),
+    min_pct = min(percentage),
+    max_pct = max(percentage),
+    range = max_pct - min_pct,
+    cv = (sd_pct / mean_pct) * 100, # Coefficient of variation
+    .groups = "drop"
+  ) |>
+  arrange(desc(cv))
+
+cat("Variability metrics by gender pattern:\n")
+cat(
+  "(CV = Coefficient of Variation; higher values indicate greater variability)\n\n"
+)
+kable(pattern_variability, digits = 2)
+```
+
+```{r}
+#| tbl-cap: "Supplementary: Variance by Gender Pattern"
+# Test for homogeneity of variance
+variance_comparison <- model_plot_data |>
+  group_by(gender_pattern) |>
+  summarise(
+    variance = var(percentage),
+    .groups = "drop"
+  ) |>
+  arrange(desc(variance))
+
+kable(variance_comparison, digits = 2)
+```
+
+```{r}
+#| tbl-cap: "Supplementary: Homogeneity Comparison for Men-only vs Women-only Patterns"
+# Specific comparison: Women-only vs Men-only homogeneity
+homogeneity_compare <- model_plot_data |>
+  filter(gender_pattern %in% c("Women only", "Men only")) |>
+  group_by(gender_pattern) |>
+  summarise(
+    mean = mean(percentage),
+    sd = sd(percentage),
+    cv = (sd(percentage) / mean(percentage)) * 100,
+    range = max(percentage) - min(percentage),
+    .groups = "drop"
+  )
+
+kable(homogeneity_compare, digits = 2)
+```
+
+**Interpretation:** Non-binary only shows highest variability (CV = `r sprintf("%.1f", pattern_variability$cv[pattern_variability$gender_pattern == "Non-binary only"])`%), compared to Women only (CV = `r sprintf("%.1f", pattern_variability$cv[pattern_variability$gender_pattern == "Women only"])`%) and Men only (CV = `r sprintf("%.1f", pattern_variability$cv[pattern_variability$gender_pattern == "Men only"])`%). This suggests Women-only and Men-only patterns are comparatively homogeneous across models.
+
+## Table 4
+
+RQ3b: Do models vary across languages?
+
+```{r rq3b-filter}
+df_rq3b <- results_classified |>
+  filter(
+    gender_pattern != "None/Unclear",
+    !is.na(noun_category),
+    !is.na(lang)
+  )
+```
+
+Sample size: `r nrow(df_rq3b)`
+
+::: {.callout-tip title="Detailed results" collapse="true"}
+```{r tbl-4-calc}
+# Three-way chi-square
+contingency_3way <- table(df_rq3b$model, df_rq3b$lang, df_rq3b$gender_pattern)
+flat_table <- ftable(contingency_3way)
+chi_3way <- chisq.test2(flat_table)
+cramers_v_3way <- CramerV(flat_table)
+
+# Model effects within each language
+language_results <- df_rq3b |>
+  nest_by(lang) |>
+  mutate(
+    contingency = list(table(data$model, data$gender_pattern)),
+    chi_test = list(chisq.test2(contingency)),
+    chi_square = chi_test$statistic,
+    df = chi_test$parameter,
+    p_value = chi_test$p.value,
+    cramers_v = CramerV(contingency)
+  ) |>
+  ungroup()
+
+# Print detailed results
+language_results |>
+  mutate(
+    output = sprintf(
+      "%s: χ²(%d) = %.2f, p < .001, Cramér's V = %.3f",
+      lang,
+      df,
+      chi_square,
+      cramers_v
+    )
+  ) |>
+  pull(output) |>
+  walk(~ cat(.x, "\n"))
+cat("\n")
+```
+
+:::
+
+```{r tbl-4}
+#| tbl-cap: "Model Effects within Each Language"
+language_results |>
+  select(
+    Language = lang,
+    Chi_square = chi_square,
+    df,
+    p_value
+  ) |>
+  mutate(
+    Chi_square = sprintf("%.2f", Chi_square),
+    p_value = "< .001",
+    Cramers_V = sprintf("%.3f", language_results$cramers_v)
+  ) |>
+  arrange(desc(as.numeric(Cramers_V))) |>
+  kable()
+```
+
+## Figure 4
+
+```{r}
+#| fig-cap: "The most frequent gender association patterns by model and language"
+dominant_patterns <- df_rq3b |>
+  group_by(lang, model, gender_pattern) |>
+  summarise(n = n(), .groups = "drop") |>
+  group_by(lang, model) |>
+  mutate(
+    total = sum(n),
+    percentage = (n / total)
+  ) |>
+  slice_max(percentage, n = 1) |>
+  select(lang, model, dominant_pattern = gender_pattern, percentage)
+
+p4 <- ggplot(
+  dominant_patterns,
+  aes(x = lang, y = model, fill = dominant_pattern)
+) +
+  geom_tile(colour = "white", linewidth = 0.5) +
+  geom_text(
+    aes(label = scales::percent(percentage, accuracy = 1)),
+    size = 2.5,
+    colour = "black",
+    fontface = "bold"
+  ) +
+  labs(
+    x = NULL,
+    y = NULL,
+    fill = "Dominant Gender Pattern"
+  ) +
+  scale_fill_paper() +
+  paper_theme(panel.grid.major = element_blank()) +
+  guides(fill = guide_legend(nrow = 2, byrow = TRUE))
+
+ggsave(
+  "figures/png/figure_4.png",
+  p4,
+  width = 210,
+  height = 148.5,
+  units = "mm",
+  dpi = 300
+)
+ggsave(
+  "figures/svg/figure_4.svg",
+  p4,
+  width = 210,
+  height = 148.5,
+  units = "mm",
+  dpi = 300
+)
+print(p4)
+```
+
+## Table 5
+
+RQ3c: Do models vary across stereotype dimensions?
+
+```{r rq3c-filter}
+df_rq3c <- results_classified |>
+  filter(
+    gender_pattern != "None/Unclear",
+    !is.na(model),
+    !is.na(noun_category)
+  )
+```
+
+Sample size: `r nrow(df_rq3c)`
+
+::: {.callout-tip title="Detailed results" collapse="true"}
+```{r tbl-5-calc}
+# Three-way chi-square
+contingency_3way <- table(
+  df_rq3c$model,
+  df_rq3c$noun_category,
+  df_rq3c$gender_pattern
+)
+flat_table <- ftable(contingency_3way)
+chi_3way <- chisq.test2(flat_table)
+cramers_v_3way <- CramerV(flat_table)
+
+# Model effects within each category
+category_results <- df_rq3c |>
+  nest_by(noun_category) |>
+  mutate(
+    contingency = list(table(data$model, data$gender_pattern)),
+    chi_test = list(chisq.test2(contingency)),
+    chi_square = chi_test$statistic,
+    df = chi_test$parameter,
+    p_value = chi_test$p.value,
+    cramers_v = CramerV(contingency)
+  ) |>
+  ungroup()
+
+# Print detailed results
+category_results |>
+  mutate(
+    output = sprintf(
+      "%s: χ²(%d) = %.2f, p < .001, Cramér's V = %.3f",
+      noun_category,
+      df,
+      chi_square,
+      cramers_v
+    )
+  ) |>
+  pull(output) |>
+  walk(~ cat(.x, "\n"))
+cat("\n")
+```
+
+:::
+
+```{r tbl-5}
+#| tbl-cap: "Model Effects within Each Stereotype Dimension"
+category_results |>
+  select(
+    Dimension = noun_category,
+    Chi_square = chi_square,
+    df,
+    p_value
+  ) |>
+  mutate(
+    Chi_square = sprintf("%.2f", Chi_square),
+    p_value = "< .001",
+    Cramers_V = sprintf("%.3f", category_results$cramers_v)
+  ) |>
+  arrange(desc(as.numeric(Cramers_V))) |>
+  kable()
+```
+
+## Figure 5
+
+```{r}
+#| fig-cap: "The most frequent gender association patterns by model and stereotype dimension."
+dominant_patterns_cat <- df_rq3c |>
+  group_by(noun_category, model, gender_pattern_fct) |>
+  summarise(n = n(), .groups = "drop") |>
+  group_by(noun_category, model) |>
+  mutate(
+    total = sum(n),
+    percentage = (n / total)
+  ) |>
+  slice_max(percentage, n = 1, with_ties = FALSE) |>
+  select(
+    noun_category,
+    model,
+    dominant_pattern = gender_pattern_fct,
+    percentage
+  )
+
+p5 <- ggplot(
+  dominant_patterns_cat,
+  aes(x = noun_category, y = model, fill = dominant_pattern)
+) +
+  geom_tile(colour = "white", linewidth = 0.5) +
+  geom_text(
+    aes(label = scales::percent(percentage, accuracy = 1)),
+    size = 2.5,
+    colour = "black",
+    fontface = "bold"
+  ) +
+  labs(
+    x = NULL,
+    y = NULL,
+    fill = "Dominant Gender Pattern"
+  ) +
+  paper_theme(panel.grid.major = element_blank()) +
+  scale_fill_paper()
+
+
+ggsave(
+  "figures/png/figure_5.png",
+  p5,
+  width = 210,
+  height = 148.5,
+  units = "mm",
+  dpi = 300
+)
+ggsave(
+  "figures/svg/figure_5.svg",
+  p5,
+  width = 210,
+  height = 148.5,
+  units = "mm",
+  dpi = 300
+)
+print(p5)
+```
+
+## Table 6
+
+RQ4: Do temperature effects vary across stereotype dimensions?
+
+```{r rq4-filter}
+df_rq4 <- results_classified |>
+  filter(
+    gender_pattern != "None/Unclear",
+    !is.na(model),
+    !is.na(lang),
+    !is.na(temperature),
+    !is.na(noun_category)
+  )
+
+temp_values <- sort(unique(df_rq4$temperature))
+low_temp <- temp_values[1]
+high_temp <- temp_values[length(temp_values)]
+```
+
+Sample size: `r nrow(df_rq4)`
+
+::: {.callout-tip title="Detailed results" collapse="true"}
+```{r tbl-6-calc}
+# Calculate entropy by category and temperature
+entropy_by_cat_temp <- df_rq4 |>
+  group_by(noun_category, model, lang, temperature, gender_pattern) |>
+  summarise(n = n(), .groups = "drop") |>
+  group_by(noun_category, model, lang, temperature) |>
+  mutate(
+    total = sum(n),
+    proportion = n / total,
+    entropy_component = -proportion * log(proportion)
+  ) |>
+  group_by(noun_category, model, lang, temperature) |>
+  summarise(
+    shannon_entropy = sum(entropy_component),
+    normalized_entropy = shannon_entropy / log(7),
+    .groups = "drop"
+  )
+
+entropy_by_cat_comparison <- entropy_by_cat_temp |>
+  filter(temperature %in% c(low_temp, high_temp)) |>
+  dplyr::select(noun_category, model, lang, temperature, normalized_entropy) |>
+  pivot_wider(
+    names_from = temperature,
+    values_from = normalized_entropy,
+    names_prefix = "temp_"
+  ) |>
+  mutate(
+    low_temp_entropy = get(paste0("temp_", low_temp)),
+    high_temp_entropy = get(paste0("temp_", high_temp)),
+    entropy_change = high_temp_entropy - low_temp_entropy
+  )
+
+# ANCOVA: Temperature × Dimension
+entropy_by_cat_temp$noun_category <- factor(entropy_by_cat_temp$noun_category)
+ancova_model <- aov(
+  normalized_entropy ~ temperature * noun_category,
+  data = entropy_by_cat_temp
+)
+
+cat("ANCOVA: Temperature × Dimension\n")
+print(summary(ancova_model))
+cat("\n")
+```
+
+:::
+
+```{r tbl-6}
+#| tbl-cap: "Gender Parity Gap Statistics by Stereotype Dimension"
+# Calculate parity gap for each model × dimension
+model_dimension_parity <- df_rq3c |>
+  group_by(model, noun_category, gender_pattern) |>
+  summarise(n = n(), .groups = "drop") |>
+  group_by(model, noun_category) |>
+  mutate(
+    total = sum(n),
+    percentage = (n / total) * 100
+  ) |>
+  filter(gender_pattern %in% c("Men only", "Women only")) |>
+  pivot_wider(
+    names_from = gender_pattern,
+    values_from = percentage,
+    values_fill = 0
+  ) |>
+  mutate(
+    parity_gap = `Men only` - `Women only`
+  )
+
+# Summary by dimension
+parity_variation <- model_dimension_parity |>
+  group_by(noun_category) |>
+  summarise(
+    mean_parity_gap = mean(parity_gap),
+    sd_parity_gap = sd(parity_gap),
+    range = max(parity_gap) - min(parity_gap),
+    .groups = "drop"
+  ) |>
+  arrange(desc(abs(mean_parity_gap)))
+
+parity_variation |>
+  mutate(
+    across(where(is.numeric), ~ sprintf("%.1f", .x))
+  ) |>
+  kable(
+    col.names = c(
+      "Dimension",
+      "Mean Gap (%)",
+      "SD (%)",
+      "Range (%)"
+    )
+  )
+```
+
+*Note. Parity gap = % Men-only − % Women-only associations. Positive values indicate male bias; negative values indicate female bias. SD = standard deviation across all 24 models. Range = maximum parity gap − minimum parity gap across models.*
+
+## Figure 6
+
+```{r}
+#| fig-cap: "Gender parity gap by stereotype dimension"
+p6 <- ggplot(
+  parity_variation,
+  aes(x = reorder(noun_category, mean_parity_gap), y = mean_parity_gap)
+) +
+  geom_hline(
+    yintercept = 0,
+    linetype = "dashed",
+    colour = "grey50",
+    linewidth = 1.2
+  ) +
+  geom_linerange(
+    aes(
+      ymin = mean_parity_gap - sd_parity_gap,
+      ymax = mean_parity_gap + sd_parity_gap
+    ),
+    linewidth = 10,
+    alpha = 0.3,
+    colour = "steelblue"
+  ) +
+  geom_point(size = 7, colour = "steelblue") +
+  geom_text(
+    aes(label = sprintf("%+.1f%%", mean_parity_gap)),
+    hjust = ifelse(parity_variation$mean_parity_gap > 0, -0.3, 1.3),
+    size = 6.5,
+    fontface = "bold",
+    colour = "grey30"
+  ) +
+  annotate(
+    "text",
+    x = 5.5,
+    y = 50,
+    label = "Male-biased →",
+    size = 5.5,
+    family = "Noto",
+    fontface = "italic",
+    colour = "grey30"
+  ) +
+  annotate(
+    "text",
+    x = 5.5,
+    y = -50,
+    label = "← Female-biased",
+    size = 5.5,
+    family = "Noto",
+    fontface = "italic",
+    colour = "grey30"
+  ) +
+  coord_flip(ylim = c(-80, 80)) +
+  labs(
+    # title = "Gender Parity Gap by Stereotype Dimension",
+    # subtitle = "Points show mean parity gap (% Men-only − % Women-only); shaded regions show ±1 SD across models",
+    x = NULL,
+    y = NULL,
+    caption = "Large shaded regions indicate high model-to-model variation"
+  )
+
+ggsave(
+  "figures/png/figure_6.png",
+  p6,
+  width = 210,
+  height = 148.5,
+  units = "mm",
+  dpi = 300
+)
+ggsave(
+  "figures/svg/figure_6.svg",
+  p6,
+  width = 210,
+  height = 148.5,
+  units = "mm",
+  dpi = 300
+)
+print(p6)
+```
+
+*Note: Points show mean parity gap (% Men-only - % Women-only); shaded regions show ±1 SD across models. Large shaded regions indicate high model-to-model variation. Positive values indicate men male bias (above zero line); negative values indicate women female bias (below zero line).*
+
+## Supplementary Analysis: Pattern Stability Across Temperatures
+
+This section is not reported in the main text but examines whether models maintain consistent dominant patterns across different temperature settings.
+
+```{r}
+#| tbl-cap: "Supplementary: Pattern Stability by Stereotype Dimension"
+# Calculate dominant pattern for each model/lang/temp/dimension combination
+dominant_by_cat_temp <- df_rq4 |>
+  group_by(noun_category, model, lang, temperature, gender_pattern) |>
+  summarise(n = n(), .groups = "drop") |>
+  group_by(noun_category, model, lang, temperature) |>
+  mutate(
+    total = sum(n),
+    percentage = (n / total) * 100
+  ) |>
+  slice_max(percentage, n = 1, with_ties = FALSE) |>
+  dplyr::select(
+    noun_category,
+    model,
+    lang,
+    temperature,
+    dominant_pattern = gender_pattern,
+    dominance_strength = percentage
+  )
+
+# Check if patterns remain stable across temperatures
+pattern_stability_by_cat <- dominant_by_cat_temp |>
+  group_by(noun_category, model, lang) |>
+  summarise(
+    n_temps = n(),
+    n_unique_patterns = n_distinct(dominant_pattern),
+    is_stable = n_unique_patterns == 1,
+    .groups = "drop"
+  )
+
+# Summary by dimension
+stability_summary <- pattern_stability_by_cat |>
+  group_by(noun_category) |>
+  summarise(
+    n_combos = n(),
+    n_stable = sum(is_stable),
+    pct_stable = round(100 * n_stable / n(), 1),
+    .groups = "drop"
+  ) |>
+  arrange(desc(pct_stable))
+
+kable(
+  stability_summary,
+  col.names = c("Dimension", "N Combinations", "N Stable", "% Stable")
+)
+```
+
+```{r}
+#| fig-cap: "Additional plot: Temperature by Mean Normalized Entropy"
+entropy_cat_summary_viz <- entropy_by_cat_temp |>
+  group_by(noun_category, temperature) |>
+  summarise(
+    mean_entropy = mean(normalized_entropy),
+    sd_entropy = sd(normalized_entropy),
+    .groups = "drop"
+  )
+
+p6_alt <- ggplot(
+  entropy_cat_summary_viz,
+  aes(x = temperature, y = mean_entropy)
+) +
+  geom_line(linewidth = 1.2, colour = "steelblue") +
+  geom_point(size = 3, colour = "steelblue") +
+  geom_ribbon(
+    aes(ymin = mean_entropy - sd_entropy, ymax = mean_entropy + sd_entropy),
+    alpha = 0.2,
+    fill = "steelblue"
+  ) +
+  facet_wrap(~noun_category, nrow = 2) +
+  scale_x_continuous(breaks = temp_values) +
+  labs(
+    x = "Temperature",
+    y = "Mean Normalized Entropy"
+  ) +
+  paper_theme(panel.grid.major = element_blank()) +
+  scale_fill_paper()
+print(p6_alt)
+```
+
+## Table 7
+
+```{r tbl-7}
+#| tbl-cap: "Mean concentration strength by stereotype dimension for the lowest (0) and highest (1) temperature"
+# Calculate dominant pattern strength (concentration)
+dominant_by_cat_temp <- df_rq4 |>
+  group_by(noun_category, model, lang, temperature, gender_pattern) |>
+  summarise(n = n(), .groups = "drop") |>
+  group_by(noun_category, model, lang, temperature) |>
+  mutate(
+    total = sum(n),
+    percentage = (n / total) * 100
+  ) |>
+  slice_max(percentage, n = 1, with_ties = FALSE) |>
+  dplyr::select(
+    noun_category,
+    model,
+    lang,
+    temperature,
+    dominant_pattern = gender_pattern,
+    dominance_strength = percentage
+  )
+
+concentration_by_cat <- dominant_by_cat_temp |>
+  filter(temperature %in% c(low_temp, high_temp)) |>
+  dplyr::select(noun_category, model, lang, temperature, dominance_strength) |>
+  pivot_wider(
+    names_from = temperature,
+    values_from = dominance_strength,
+    names_prefix = "temp_"
+  ) |>
+  mutate(
+    low_temp_value = get(paste0("temp_", low_temp)),
+    high_temp_value = get(paste0("temp_", high_temp)),
+    change = high_temp_value - low_temp_value
+  )
+
+concentration_summary <- concentration_by_cat |>
+  group_by(noun_category) |>
+  summarise(
+    mean_low = mean(low_temp_value, na.rm = TRUE),
+    mean_high = mean(high_temp_value, na.rm = TRUE),
+    mean_change = mean(change, na.rm = TRUE),
+    sd_change = sd(change, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  arrange(desc(abs(mean_change)))
+
+concentration_summary |>
+  mutate(
+    across(where(is.numeric), ~ sprintf("%.2f", .x))
+  ) |>
+  kable(
+    col.names = c(
+      "Dimension",
+      "Mean Low (T=0)",
+      "Mean High (T=1)",
+      "Mean Change",
+      "SD"
+    )
+  )
+```
+
+## Table 8
+
+```{r tbl-8}
+#| tbl-cap: "Shannon entropy values by stereotype dimension for the lowest (0) and highest (1) temperature"
+# Simple entropy summary (calculated in Table 6 section)
+entropy_by_cat_comparison |>
+  group_by(noun_category) |>
+  summarise(
+    mean_low_entropy = mean(low_temp_entropy, na.rm = TRUE),
+    sd_low_entropy = sd(low_temp_entropy, na.rm = TRUE),
+    mean_high_entropy = mean(high_temp_entropy, na.rm = TRUE),
+    sd_high_entropy = sd(high_temp_entropy, na.rm = TRUE),
+    mean_entropy_change = mean(entropy_change, na.rm = TRUE),
+    sd_entropy_change = sd(entropy_change, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  arrange(abs(mean_entropy_change)) |>
+  select(
+    noun_category,
+    mean_low_entropy,
+    mean_high_entropy,
+    mean_entropy_change,
+    sd_entropy_change
+  ) |>
+  mutate(
+    across(where(is.numeric), ~ sprintf("%.3f", .x))
+  ) |>
+  kable(
+    col.names = c(
+      "Dimension",
+      "Low Temp (T=0)",
+      "High Temp (T=1)",
+      "Change",
+      "SD"
+    )
+  )
+```
+
+## Supplementary Analysis: Linear Regression by Dimension
+
+This section is not reported in the main text but provides dimension-specific regression analyses of entropy changes with temperature.
+
+```{r models}
+#| tbl-cap: "Supplementary: Linear Regression Results by Stereotype Dimension"
+#| output: "asis"
+noun_categories <- entropy_by_cat_temp |>
+  pull("noun_category") |>
+  as.character() |>
+  unique() |>
+  sort() |>
+  setNames(nm = _)
+models <- map(noun_categories, function(cat_name) {
+  cat_data <- entropy_by_cat_temp |> filter(noun_category == cat_name)
+  lm(normalized_entropy ~ temperature, data = cat_data)
+})
+texreg::knitreg(models)
+```
+
+
+# wrap up
+
+Some information about the session:
+  
+```{r}
+sessionInfo()
+Sys.time()
+# note how long the script takes to (re-)run
+Sys.time() - start
+```
