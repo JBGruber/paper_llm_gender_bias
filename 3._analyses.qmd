@@ -1,6 +1,6 @@
 ---
 title: 3. Analyses
-author: Aleksandra Urman, Ana Jovancevic, and Johannes B. Gruber 
+author: Aleksandra Urman and Johannes B. Gruber 
 date: today
 format:
   html:
@@ -213,6 +213,24 @@ df_rq1 <- results_classified |>
 contingency_table <- table(df_rq1$noun_category, df_rq1$gender_pattern)
 chi_test <- chisq.test2(contingency_table)
 cramers_v <- CramerV(contingency_table)
+
+
+# Statistics reported in-text
+chi_square <- chi_test$statistic
+df_chi <- chi_test$parameter
+p_value <- chi_test$p.value
+cramers_v_squared <- cramers_v^2
+cat("Chi-square test of independence:\n")
+cat(sprintf("χ²(%d) = %.3f, p %s\n", 
+            df_chi, 
+            chi_square, 
+            ifelse(p_value < .001, "< .001", sprintf("= %.3f", p_value))))
+cat(sprintf("Cramér's V = %.3f\n", cramers_v))
+cat(sprintf("Cramér's V² = %.3f (effect size: %s)\n", 
+            cramers_v_squared,
+            ifelse(cramers_v_squared < .09, "small",
+                   ifelse(cramers_v_squared < .25, "medium", "large"))))
+#Reported as table
 residuals_df <- as.data.frame.matrix(chi_test$stdres) |>
   rownames_to_column("Category") |>
   pivot_longer(
@@ -336,6 +354,25 @@ contingency_3way <- table(
 flat_table <- ftable(contingency_3way)
 chi_3way <- chisq.test2(flat_table)
 cramers_v_3way <- CramerV(flat_table)
+
+#Reported in text
+chi_square_3way <- chi_3way$statistic
+df_3way <- chi_3way$parameter
+p_value_3way <- chi_3way$p.value
+cramers_v_squared_3way <- cramers_v_3way^2
+
+# Print overall three-way results
+cat("Three-way chi-square test:\n")
+cat(sprintf("χ²(%d) = %.3f, p %s\n", 
+            df_3way, 
+            chi_square_3way, 
+            ifelse(p_value_3way < .001, "< .001", sprintf("= %.3f", p_value_3way))))
+cat(sprintf("Cramér's V = %.3f\n", cramers_v_3way))
+cat(sprintf("Cramér's V² = %.3f (effect size: %s)\n\n", 
+            cramers_v_squared_3way,
+            ifelse(cramers_v_squared_3way < .09, "small",
+                   ifelse(cramers_v_squared_3way < .25, "medium", "large"))))
+
 
 category_results <- df_rq2 |>
   nest_by(noun_category) |>
@@ -472,6 +509,27 @@ df_rq3a <- results_classified |>
       TRUE ~ "Other"
     )
   )
+
+# For results reported in-text
+contingency_model <- table(df_rq3a$model, df_rq3a$gender_pattern)
+chi_model <- chisq.test(contingency_model)
+cramers_v_model <- CramerV(contingency_model)
+chi_square_model <- chi_model$statistic
+df_model <- chi_model$parameter
+p_value_model <- chi_model$p.value
+cramers_v_squared_model <- cramers_v_model^2
+
+cat("Chi-square test: Model × Gender Pattern\n")
+cat(sprintf("χ²(%d) = %.3f, p %s\n", 
+            df_model, 
+            chi_square_model, 
+            ifelse(p_value_model < .001, "< .001", sprintf("= %.3f", p_value_model))))
+cat(sprintf("Cramér's V = %.3f\n", cramers_v_model))
+cat(sprintf("Cramér's V² = %.3f (effect size: %s)\n\n", 
+            cramers_v_squared_model,
+            ifelse(cramers_v_squared_model < .09, "small",
+                   ifelse(cramers_v_squared_model < .25, "medium", "large"))))
+
 ```
 
 Sample size: `r nrow(df_rq3a)`
@@ -703,6 +761,57 @@ Sample size: `r nrow(df_rq3b)`
 
 ::: {.callout-tip title="Detailed results" collapse="true"}
 ```{r tbl-4-calc}
+
+cat("Within-language model consistency:\n")
+cat(strrep("-", 60), "\n")
+
+language_consistency <- df_rq3b |>
+  group_by(lang, model, gender_pattern) |>
+  summarise(n = n(), .groups = "drop") |>
+  group_by(lang, model) |>
+  mutate(total = sum(n), percentage = (n / total) * 100) |>
+  group_by(lang, gender_pattern) |>
+  summarise(
+    n_models = n(),
+    mean_pct = mean(percentage),
+    sd_pct = sd(percentage),
+    min_pct = min(percentage),
+    max_pct = max(percentage),
+    range = max_pct - min_pct,
+    .groups = "drop"
+  ) |>
+  arrange(lang, desc(mean_pct))
+
+# Summary of consistency by language
+language_summary <- language_consistency |>
+  group_by(lang) |>
+  summarise(
+    avg_sd = mean(sd_pct, na.rm = TRUE),
+    max_range = max(range, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  arrange(avg_sd)
+
+# Print language consistency summary
+cat("\nAverage standard deviation by language (lower = more consistent):\n")
+language_summary |>
+  mutate(
+    output = sprintf("%s: Average SD = %.1f%%, Max Range = %.1f%%", 
+                     lang, avg_sd, max_range)
+  ) |>
+  pull(output) |>
+  walk(~ cat(.x, "\n"))
+
+cat("\n")
+
+# Display consistency table
+kable(language_summary |>
+        select("Language" = lang,
+               "Average SD (%)" = avg_sd,
+               "Max Range (%)" = max_range) |>
+        mutate(across(where(is.numeric), ~round(.x, 1))),
+      caption = "Within-Language Model Consistency")
+
 # Three-way chi-square
 contingency_3way <- table(df_rq3b$model, df_rq3b$lang, df_rq3b$gender_pattern)
 flat_table <- ftable(contingency_3way)
@@ -838,7 +947,23 @@ contingency_3way <- table(
 flat_table <- ftable(contingency_3way)
 chi_3way <- chisq.test2(flat_table)
 cramers_v_3way <- CramerV(flat_table)
+# Extract and report overall test statistics
+chi_square_3way <- chi_3way$statistic
+df_3way <- chi_3way$parameter
+p_value_3way <- chi_3way$p.value
+cramers_v_squared_3way <- cramers_v_3way^2
 
+# Print overall three-way results
+cat("Three-way chi-square test:\n")
+cat(sprintf("χ²(%d) = %.3f, p %s\n", 
+            df_3way, 
+            chi_square_3way, 
+            ifelse(p_value_3way < .001, "< .001", sprintf("= %.3f", p_value_3way))))
+cat(sprintf("Cramér's V = %.3f\n", cramers_v_3way))
+cat(sprintf("Cramér's V² = %.3f (effect size: %s)\n\n", 
+            cramers_v_squared_3way,
+            ifelse(cramers_v_squared_3way < .09, "small",
+                   ifelse(cramers_v_squared_3way < .25, "medium", "large"))))
 # Model effects within each category
 category_results <- df_rq3c |>
   nest_by(noun_category) |>
@@ -886,6 +1011,57 @@ category_results |>
   ) |>
   arrange(desc(as.numeric(Cramers_V))) |>
   kable()
+
+cat("Within-dimension model consistency:\n")
+cat(strrep("-", 60), "\n")
+
+dimension_consistency <- df_rq3b |>  # or df_rq3a depending on your data structure
+  group_by(noun_category, model, gender_pattern) |>
+  summarise(n = n(), .groups = "drop") |>
+  group_by(noun_category, model) |>
+  mutate(total = sum(n), percentage = (n / total) * 100) |>
+  group_by(noun_category, gender_pattern) |>
+  summarise(
+    n_models = n(),
+    mean_pct = mean(percentage),
+    sd_pct = sd(percentage),
+    min_pct = min(percentage),
+    max_pct = max(percentage),
+    range = max_pct - min_pct,
+    .groups = "drop"
+  ) |>
+  arrange(noun_category, desc(mean_pct))
+
+# Summary of consistency by stereotype dimension
+dimension_summary <- dimension_consistency |>
+  group_by(noun_category) |>
+  summarise(
+    avg_sd = mean(sd_pct, na.rm = TRUE),
+    max_range = max(range, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  arrange(avg_sd)
+
+# Print dimension consistency summary
+cat("\nAverage standard deviation by stereotype dimension (lower = more consistent):\n")
+dimension_summary |>
+  mutate(
+    output = sprintf("%s: Average SD = %.2f%%, Max Range = %.1f%%", 
+                     noun_category, avg_sd, max_range)
+  ) |>
+  pull(output) |>
+  walk(~ cat(.x, "\n"))
+
+cat("\n")
+
+# Display consistency table
+kable(dimension_summary |>
+        select("Stereotype Dimension" = noun_category,
+               "Average SD (%)" = avg_sd,
+               "Max Range (%)" = max_range) |>
+        mutate(across(where(is.numeric), ~round(.x, 2))),
+      caption = "Within-Dimension Model Consistency Across Gender Patterns")
+
 ```
 
 ## Figure 5
@@ -970,6 +1146,114 @@ Sample size: `r nrow(df_rq4)`
 
 ::: {.callout-tip title="Detailed results" collapse="true"}
 ```{r tbl-6-calc}
+
+# ============================================================================
+# Pattern Stability Analysis: Most Frequent Pattern Across Temperatures
+# ============================================================================
+
+# Calculate most frequent pattern for each model-language-dimension-temperature combination
+most_frequent_patterns <- df_rq4 |>
+  group_by(noun_category, model, lang, temperature, gender_pattern) |>
+  summarise(n = n(), .groups = "drop") |>
+  group_by(noun_category, model, lang, temperature) |>
+  slice_max(n, n = 1, with_ties = FALSE) |>
+  select(noun_category, model, lang, temperature, most_frequent = gender_pattern)
+
+cat("Pattern Stability Analysis: Most Frequent Pattern Across Temperatures\n")
+cat(strrep("=", 70), "\n\n")
+
+# Check if the most frequent pattern is the same across all three temperatures
+pattern_stability <- most_frequent_patterns |>
+  group_by(noun_category, model, lang) |>
+  summarise(
+    n_temps = n_distinct(temperature),
+    n_unique_patterns = n_distinct(most_frequent),
+    stable = n_unique_patterns == 1,  # TRUE if same pattern across all temps
+    patterns = paste(most_frequent[order(temperature)], collapse = ", "),
+    .groups = "drop"
+  )
+
+# Calculate stability percentage by dimension
+dimension_stability <- pattern_stability |>
+  group_by(noun_category) |>
+  summarise(
+    total_combinations = n(),
+    stable_combinations = sum(stable),
+    stability_pct = (stable_combinations / total_combinations) * 100,
+    .groups = "drop"
+  ) |>
+  arrange(desc(stability_pct))
+
+cat("Stability by Stereotype Dimension:\n")
+cat(strrep("-", 70), "\n")
+
+dimension_stability |>
+  mutate(
+    output = sprintf("%s: %.1f%% stable (%d/%d model-language combinations)",
+                     noun_category, stability_pct, stable_combinations, total_combinations)
+  ) |>
+  pull(output) |>
+  walk(~ cat(.x, "\n"))
+
+cat("\n")
+
+# Display table
+kable(dimension_stability |>
+        select("Stereotype Dimension" = noun_category,
+               "Total Combinations" = total_combinations,
+               "Stable Combinations" = stable_combinations,
+               "Stability %" = stability_pct) |>
+        mutate(`Stability %` = round(`Stability %`, 1)),
+      caption = "Most Frequent Pattern Stability Across Temperature Levels by Dimension")
+
+# ============================================================================
+# Stability by Language within Each Dimension
+# ============================================================================
+
+cat("\n\nStability by Language within Each Dimension:\n")
+cat(strrep("=", 70), "\n\n")
+
+language_dimension_stability <- pattern_stability |>
+  group_by(noun_category, lang) |>
+  summarise(
+    total_combinations = n(),
+    stable_combinations = sum(stable),
+    stability_pct = (stable_combinations / total_combinations) * 100,
+    .groups = "drop"
+  ) |>
+  arrange(noun_category, desc(stability_pct))
+
+# Print by dimension
+for (dim in unique(language_dimension_stability$noun_category)) {
+  cat(sprintf("\n%s:\n", dim))
+  cat(strrep("-", 70), "\n")
+  
+  language_dimension_stability |>
+    filter(noun_category == dim) |>
+    mutate(
+      output = sprintf("  %s: %.1f%% stable (%d/%d)",
+                       lang, stability_pct, stable_combinations, total_combinations)
+    ) |>
+    pull(output) |>
+    walk(~ cat(.x, "\n"))
+}
+
+cat("\n")
+
+# Full table
+kable(language_dimension_stability |>
+        select("Stereotype Dimension" = noun_category,
+               "Language" = lang,
+               "Total Combinations" = total_combinations,
+               "Stable Combinations" = stable_combinations,
+               "Stability %" = stability_pct) |>
+        mutate(`Stability %` = round(`Stability %`, 1)),
+      caption = "Most Frequent Pattern Stability by Dimension and Language")
+
+
+
+
+
 # Calculate entropy by category and temperature
 entropy_by_cat_temp <- df_rq4 |>
   group_by(noun_category, model, lang, temperature, gender_pattern) |>
