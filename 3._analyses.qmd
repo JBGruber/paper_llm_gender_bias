@@ -296,7 +296,8 @@ p1 <- ggplot(
     ),
     position = position_dodge(width = 0.85),
     angle = 90,
-    fontface = "bold"
+    fontface = "bold",
+    size = 5  
   ) +
   scale_y_continuous(
     labels = scales::percent,
@@ -309,7 +310,13 @@ p1 <- ggplot(
     fill = "Gender Pattern"
   ) +
   guides(fill = guide_legend(nrow = 1)) +
-  paper_theme(panel.grid.major.x = element_blank()) +
+  paper_theme(
+    panel.grid.major.x = element_blank(),
+    axis.text = element_text(size = 13),
+    axis.title = element_text(size = 14),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 13)
+  ) +
   scale_fill_paper()
 
 ggsave(
@@ -465,7 +472,11 @@ p2 <- ggplot(
     y = NULL,
     fill = "Gender Pattern"
   ) +
-  paper_theme(panel.grid.major.y = element_blank()) +
+  paper_theme(
+    panel.grid.major.y = element_blank(),
+    legend.text = element_text(size = 12),
+    legend.title = element_text(size = 13)
+  ) +
   scale_fill_paper()
 
 ggsave(
@@ -620,12 +631,16 @@ p3 <- ggplot(
     fill = "Gender Pattern"
   ) +
   scale_fill_paper() +
-  guides(fill = guide_legend(nrow = 2, byrow = TRUE))
+  guides(fill = guide_legend(nrow = 2, byrow = TRUE)) +
+  paper_theme(
+    legend.text = element_text(size = 12),
+    legend.title = element_text(size = 13)
+  )
 
 ggsave(
   "figures/png/figure_3.png",
   p3,
-  width = 210,
+  width = 300,
   height = 148.5,
   units = "mm",
   dpi = 300
@@ -633,55 +648,62 @@ ggsave(
 ggsave(
   "figures/svg/figure_3.svg",
   p3,
-  width = 210,
+  width = 300,
   height = 148.5,
   units = "mm",
   dpi = 300
 )
 print(p3)
-```
 
-```{r}
-#| fig-cap: "Alternative plot: Distributions of gender association patterns by model (facetted)"
-#| fig-width: 6
-#| fig-height: 14
-#| dpi: 300
-# Prepare data for faceted plot
-model_plot_faceted <- model_plot_data |>
-  # Order models by a meaningful metric (e.g., total count or family)
-  left_join(
-    df_rq3a |>
-      group_by(model) |>
-      summarise(model_total = n(), .groups = "drop"),
-    by = "model"
+
+#Faceted version of the plot
+p3_faceted <- ggplot(
+  model_plot_labeled,
+  aes(x = percentage, y = model, fill = gender_pattern, label = label_text)
+) +
+  geom_col(position = "stack") +
+  scale_x_continuous(labels = scales::percent) +
+  geom_text(
+    aes(x = 0.01),
+    size = 2.5,
+    colour = "black",
+    fontface = "bold",
+    hjust = 0
+  ) +
+  facet_wrap(~gender_pattern, nrow = 2) +
+  labs(
+    x = NULL,
+    y = NULL,
+    fill = "Gender Pattern"
+  ) +
+  scale_fill_paper() +
+  guides(fill = guide_legend(nrow = 2, byrow = TRUE)) +
+  paper_theme(
+    legend.text = element_text(size = 12),
+    legend.title = element_text(size = 13),
+    plot.margin = margin(5, 20, 5, 5, "mm")
   )
 
-p3_faceted <- ggplot(
-  model_plot_faceted,
-  aes(x = percentage, y = reorder(model, model_total), fill = gender_pattern)
-) +
-  geom_col(show.legend = FALSE) +
-  geom_text(
-    aes(label = ifelse(percentage > 3, paste0(round(percentage, 1), "%"), "")),
-    hjust = -0.1,
-    size = 2.3,
-    fontface = "bold"
-  ) +
-  facet_wrap(~gender_pattern, ncol = 2, scales = "free_x") +
-  scale_x_continuous(
-    labels = scales::percent,
-    limits = c(0, max(model_plot_faceted$percentage) * 1.15)
-  ) +
-  labs(
-    title = "Gender Association Patterns by Model",
-    subtitle = "Faceted by pattern type for direct comparison across models",
-    x = "Model",
-    y = "Percentage (%)"
-  ) +
-  scale_fill_paper()
-
+ggsave(
+  "figures/png/figure_3_faceted.png",
+  p3_faceted,
+  width = 400,
+  height = 250,
+  units = "mm",
+  dpi = 300
+)
+ggsave(
+  "figures/svg/figure_3_faceted.svg",
+  p3_faceted,
+  width = 400,
+  height = 250,
+  units = "mm",
+  dpi = 300
+)
 print(p3_faceted)
 ```
+
+
 
 ## Supplementary Analysis: Variability Across Gender Patterns
 
@@ -899,13 +921,18 @@ p4 <- ggplot(
     fill = "Dominant Gender Pattern"
   ) +
   scale_fill_paper() +
-  paper_theme(panel.grid.major = element_blank()) +
+  paper_theme(
+    panel.grid.major = element_blank(),
+    legend.text = element_text(size = 12),
+    legend.title = element_text(size = 13),
+    axis.text.x = element_text(size = 13)
+  ) +
   guides(fill = guide_legend(nrow = 2, byrow = TRUE))
 
 ggsave(
   "figures/png/figure_4.png",
   p4,
-  width = 210,
+  width = 250,
   height = 148.5,
   units = "mm",
   dpi = 300
@@ -913,7 +940,7 @@ ggsave(
 ggsave(
   "figures/svg/figure_4.svg",
   p4,
-  width = 210,
+  width = 250,
   height = 148.5,
   units = "mm",
   dpi = 300
@@ -1100,14 +1127,19 @@ p5 <- ggplot(
     y = NULL,
     fill = "Dominant Gender Pattern"
   ) +
-  paper_theme(panel.grid.major = element_blank()) +
+  paper_theme(
+    panel.grid.major = element_blank(),
+    legend.text = element_text(size = 12),
+    legend.title = element_text(size = 13),
+    axis.text.x = element_text(size = 13)
+  ) +
   scale_fill_paper()
 
 
 ggsave(
   "figures/png/figure_5.png",
   p5,
-  width = 210,
+  width = 250,
   height = 148.5,
   units = "mm",
   dpi = 300
@@ -1115,7 +1147,7 @@ ggsave(
 ggsave(
   "figures/svg/figure_5.svg",
   p5,
-  width = 210,
+  width = 250,
   height = 148.5,
   units = "mm",
   dpi = 300
@@ -1383,7 +1415,7 @@ p6 <- ggplot(
     x = 5.5,
     y = 50,
     label = "Male-biased →",
-    size = 5.5,
+    size = 7,
     family = "Noto",
     fontface = "italic",
     colour = "grey30"
@@ -1393,18 +1425,21 @@ p6 <- ggplot(
     x = 5.5,
     y = -50,
     label = "← Female-biased",
-    size = 5.5,
+    size = 7,
     family = "Noto",
     fontface = "italic",
     colour = "grey30"
   ) +
   coord_flip(ylim = c(-80, 80)) +
   labs(
-    # title = "Gender Parity Gap by Stereotype Dimension",
-    # subtitle = "Points show mean parity gap (% Men-only − % Women-only); shaded regions show ±1 SD across models",
     x = NULL,
     y = NULL,
     caption = "Large shaded regions indicate high model-to-model variation"
+  ) +
+  paper_theme(
+    axis.text.x = element_text(size = 18),
+    axis.text.y = element_text(size = 18),
+    plot.caption = element_text(size = 13)
   )
 
 ggsave(
