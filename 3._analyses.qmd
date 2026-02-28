@@ -221,15 +221,22 @@ df_chi <- chi_test$parameter
 p_value <- chi_test$p.value
 cramers_v_squared <- cramers_v^2
 cat("Chi-square test of independence:\n")
-cat(sprintf("χ²(%d) = %.3f, p %s\n", 
-            df_chi, 
-            chi_square, 
-            ifelse(p_value < .001, "< .001", sprintf("= %.3f", p_value))))
+cat(sprintf(
+  "χ²(%d) = %.3f, p %s\n",
+  df_chi,
+  chi_square,
+  ifelse(p_value < .001, "< .001", sprintf("= %.3f", p_value))
+))
 cat(sprintf("Cramér's V = %.3f\n", cramers_v))
-cat(sprintf("Cramér's V² = %.3f (effect size: %s)\n", 
-            cramers_v_squared,
-            ifelse(cramers_v_squared < .09, "small",
-                   ifelse(cramers_v_squared < .25, "medium", "large"))))
+cat(sprintf(
+  "Cramér's V² = %.3f (effect size: %s)\n",
+  cramers_v_squared,
+  ifelse(
+    cramers_v_squared < .09,
+    "small",
+    ifelse(cramers_v_squared < .25, "medium", "large")
+  )
+))
 #Reported as table
 residuals_df <- as.data.frame.matrix(chi_test$stdres) |>
   rownames_to_column("Category") |>
@@ -249,6 +256,7 @@ residuals_df <- as.data.frame.matrix(chi_test$stdres) |>
   ) |>
   select("Stereotype Dimension" = Category, Gender_Pattern, Display) |>
   pivot_wider(names_from = Gender_Pattern, values_from = Display)
+saveRDS(residuals_df, "tables/tab-2.rds")
 kable(residuals_df)
 ```
 
@@ -297,7 +305,7 @@ p1 <- ggplot(
     position = position_dodge(width = 0.85),
     angle = 90,
     fontface = "bold",
-    size = 5  
+    size = 5
   ) +
   scale_y_continuous(
     labels = scales::percent,
@@ -370,15 +378,22 @@ cramers_v_squared_3way <- cramers_v_3way^2
 
 # Print overall three-way results
 cat("Three-way chi-square test:\n")
-cat(sprintf("χ²(%d) = %.3f, p %s\n", 
-            df_3way, 
-            chi_square_3way, 
-            ifelse(p_value_3way < .001, "< .001", sprintf("= %.3f", p_value_3way))))
+cat(sprintf(
+  "χ²(%d) = %.3f, p %s\n",
+  df_3way,
+  chi_square_3way,
+  ifelse(p_value_3way < .001, "< .001", sprintf("= %.3f", p_value_3way))
+))
 cat(sprintf("Cramér's V = %.3f\n", cramers_v_3way))
-cat(sprintf("Cramér's V² = %.3f (effect size: %s)\n\n", 
-            cramers_v_squared_3way,
-            ifelse(cramers_v_squared_3way < .09, "small",
-                   ifelse(cramers_v_squared_3way < .25, "medium", "large"))))
+cat(sprintf(
+  "Cramér's V² = %.3f (effect size: %s)\n\n",
+  cramers_v_squared_3way,
+  ifelse(
+    cramers_v_squared_3way < .09,
+    "small",
+    ifelse(cramers_v_squared_3way < .25, "medium", "large")
+  )
+))
 
 
 category_results <- df_rq2 |>
@@ -413,7 +428,7 @@ cat("\n")
 
 ```{r tbl-3}
 #| tbl-cap: "Language Differences in Gender Association Patterns by Stereotype Dimension"
-category_results |>
+tab3 <- category_results |>
   select(
     Dimension = noun_category,
     Chi_square = chi_square,
@@ -425,8 +440,9 @@ category_results |>
     p_value = "< .001",
     Cramers_V = sprintf("%.3f", category_results$cramers_v)
   ) |>
-  arrange(desc(as.numeric(Cramers_V))) |>
-  kable()
+  arrange(desc(as.numeric(Cramers_V)))
+saveRDS(tab3, "tables/tab-3.rds")
+kable(tab3)
 ```
 
 ## Figure 2
@@ -531,15 +547,22 @@ p_value_model <- chi_model$p.value
 cramers_v_squared_model <- cramers_v_model^2
 
 cat("Chi-square test: Model × Gender Pattern\n")
-cat(sprintf("χ²(%d) = %.3f, p %s\n", 
-            df_model, 
-            chi_square_model, 
-            ifelse(p_value_model < .001, "< .001", sprintf("= %.3f", p_value_model))))
+cat(sprintf(
+  "χ²(%d) = %.3f, p %s\n",
+  df_model,
+  chi_square_model,
+  ifelse(p_value_model < .001, "< .001", sprintf("= %.3f", p_value_model))
+))
 cat(sprintf("Cramér's V = %.3f\n", cramers_v_model))
-cat(sprintf("Cramér's V² = %.3f (effect size: %s)\n\n", 
-            cramers_v_squared_model,
-            ifelse(cramers_v_squared_model < .09, "small",
-                   ifelse(cramers_v_squared_model < .25, "medium", "large"))))
+cat(sprintf(
+  "Cramér's V² = %.3f (effect size: %s)\n\n",
+  cramers_v_squared_model,
+  ifelse(
+    cramers_v_squared_model < .09,
+    "small",
+    ifelse(cramers_v_squared_model < .25, "medium", "large")
+  )
+))
 
 ```
 
@@ -818,8 +841,12 @@ language_summary <- language_consistency |>
 cat("\nAverage standard deviation by language (lower = more consistent):\n")
 language_summary |>
   mutate(
-    output = sprintf("%s: Average SD = %.1f%%, Max Range = %.1f%%", 
-                     lang, avg_sd, max_range)
+    output = sprintf(
+      "%s: Average SD = %.1f%%, Max Range = %.1f%%",
+      lang,
+      avg_sd,
+      max_range
+    )
   ) |>
   pull(output) |>
   walk(~ cat(.x, "\n"))
@@ -827,12 +854,16 @@ language_summary |>
 cat("\n")
 
 # Display consistency table
-kable(language_summary |>
-        select("Language" = lang,
-               "Average SD (%)" = avg_sd,
-               "Max Range (%)" = max_range) |>
-        mutate(across(where(is.numeric), ~round(.x, 1))),
-      caption = "Within-Language Model Consistency")
+kable(
+  language_summary |>
+    select(
+      "Language" = lang,
+      "Average SD (%)" = avg_sd,
+      "Max Range (%)" = max_range
+    ) |>
+    mutate(across(where(is.numeric), ~ round(.x, 1))),
+  caption = "Within-Language Model Consistency"
+)
 
 # Three-way chi-square
 contingency_3way <- table(df_rq3b$model, df_rq3b$lang, df_rq3b$gender_pattern)
@@ -873,7 +904,7 @@ cat("\n")
 
 ```{r tbl-4}
 #| tbl-cap: "Model Effects within Each Language"
-language_results |>
+tab4 <- language_results |>
   select(
     Language = lang,
     Chi_square = chi_square,
@@ -885,8 +916,9 @@ language_results |>
     p_value = "< .001",
     Cramers_V = sprintf("%.3f", language_results$cramers_v)
   ) |>
-  arrange(desc(as.numeric(Cramers_V))) |>
-  kable()
+  arrange(desc(as.numeric(Cramers_V)))
+saveRDS(tab4, "tables/tab-4.rds")
+kable(tab4)
 ```
 
 ## Figure 4
@@ -982,15 +1014,22 @@ cramers_v_squared_3way <- cramers_v_3way^2
 
 # Print overall three-way results
 cat("Three-way chi-square test:\n")
-cat(sprintf("χ²(%d) = %.3f, p %s\n", 
-            df_3way, 
-            chi_square_3way, 
-            ifelse(p_value_3way < .001, "< .001", sprintf("= %.3f", p_value_3way))))
+cat(sprintf(
+  "χ²(%d) = %.3f, p %s\n",
+  df_3way,
+  chi_square_3way,
+  ifelse(p_value_3way < .001, "< .001", sprintf("= %.3f", p_value_3way))
+))
 cat(sprintf("Cramér's V = %.3f\n", cramers_v_3way))
-cat(sprintf("Cramér's V² = %.3f (effect size: %s)\n\n", 
-            cramers_v_squared_3way,
-            ifelse(cramers_v_squared_3way < .09, "small",
-                   ifelse(cramers_v_squared_3way < .25, "medium", "large"))))
+cat(sprintf(
+  "Cramér's V² = %.3f (effect size: %s)\n\n",
+  cramers_v_squared_3way,
+  ifelse(
+    cramers_v_squared_3way < .09,
+    "small",
+    ifelse(cramers_v_squared_3way < .25, "medium", "large")
+  )
+))
 # Model effects within each category
 category_results <- df_rq3c |>
   nest_by(noun_category) |>
@@ -1024,7 +1063,7 @@ cat("\n")
 
 ```{r tbl-5}
 #| tbl-cap: "Model Effects within Each Stereotype Dimension"
-category_results |>
+tab5 <- category_results |>
   select(
     Dimension = noun_category,
     Chi_square = chi_square,
@@ -1036,13 +1075,14 @@ category_results |>
     p_value = "< .001",
     Cramers_V = sprintf("%.3f", category_results$cramers_v)
   ) |>
-  arrange(desc(as.numeric(Cramers_V))) |>
-  kable()
+  arrange(desc(as.numeric(Cramers_V)))
+saveRDS(tab5, "tables/tab-5.rds")
+kable(tab5)
 
 cat("Within-dimension model consistency:\n")
 cat(strrep("-", 60), "\n")
 
-dimension_consistency <- df_rq3b |>  # or df_rq3a depending on your data structure
+dimension_consistency <- df_rq3b |> # or df_rq3a depending on your data structure
   group_by(noun_category, model, gender_pattern) |>
   summarise(n = n(), .groups = "drop") |>
   group_by(noun_category, model) |>
@@ -1070,11 +1110,17 @@ dimension_summary <- dimension_consistency |>
   arrange(avg_sd)
 
 # Print dimension consistency summary
-cat("\nAverage standard deviation by stereotype dimension (lower = more consistent):\n")
+cat(
+  "\nAverage standard deviation by stereotype dimension (lower = more consistent):\n"
+)
 dimension_summary |>
   mutate(
-    output = sprintf("%s: Average SD = %.2f%%, Max Range = %.1f%%", 
-                     noun_category, avg_sd, max_range)
+    output = sprintf(
+      "%s: Average SD = %.2f%%, Max Range = %.1f%%",
+      noun_category,
+      avg_sd,
+      max_range
+    )
   ) |>
   pull(output) |>
   walk(~ cat(.x, "\n"))
@@ -1082,12 +1128,16 @@ dimension_summary |>
 cat("\n")
 
 # Display consistency table
-kable(dimension_summary |>
-        select("Stereotype Dimension" = noun_category,
-               "Average SD (%)" = avg_sd,
-               "Max Range (%)" = max_range) |>
-        mutate(across(where(is.numeric), ~round(.x, 2))),
-      caption = "Within-Dimension Model Consistency Across Gender Patterns")
+kable(
+  dimension_summary |>
+    select(
+      "Stereotype Dimension" = noun_category,
+      "Average SD (%)" = avg_sd,
+      "Max Range (%)" = max_range
+    ) |>
+    mutate(across(where(is.numeric), ~ round(.x, 2))),
+  caption = "Within-Dimension Model Consistency Across Gender Patterns"
+)
 
 ```
 
@@ -1189,7 +1239,13 @@ most_frequent_patterns <- df_rq4 |>
   summarise(n = n(), .groups = "drop") |>
   group_by(noun_category, model, lang, temperature) |>
   slice_max(n, n = 1, with_ties = FALSE) |>
-  select(noun_category, model, lang, temperature, most_frequent = gender_pattern)
+  select(
+    noun_category,
+    model,
+    lang,
+    temperature,
+    most_frequent = gender_pattern
+  )
 
 cat("Pattern Stability Analysis: Most Frequent Pattern Across Temperatures\n")
 cat(strrep("=", 70), "\n\n")
@@ -1200,7 +1256,7 @@ pattern_stability <- most_frequent_patterns |>
   summarise(
     n_temps = n_distinct(temperature),
     n_unique_patterns = n_distinct(most_frequent),
-    stable = n_unique_patterns == 1,  # TRUE if same pattern across all temps
+    stable = n_unique_patterns == 1, # TRUE if same pattern across all temps
     patterns = paste(most_frequent[order(temperature)], collapse = ", "),
     .groups = "drop"
   )
@@ -1221,8 +1277,13 @@ cat(strrep("-", 70), "\n")
 
 dimension_stability |>
   mutate(
-    output = sprintf("%s: %.1f%% stable (%d/%d model-language combinations)",
-                     noun_category, stability_pct, stable_combinations, total_combinations)
+    output = sprintf(
+      "%s: %.1f%% stable (%d/%d model-language combinations)",
+      noun_category,
+      stability_pct,
+      stable_combinations,
+      total_combinations
+    )
   ) |>
   pull(output) |>
   walk(~ cat(.x, "\n"))
@@ -1230,13 +1291,17 @@ dimension_stability |>
 cat("\n")
 
 # Display table
-kable(dimension_stability |>
-        select("Stereotype Dimension" = noun_category,
-               "Total Combinations" = total_combinations,
-               "Stable Combinations" = stable_combinations,
-               "Stability %" = stability_pct) |>
-        mutate(`Stability %` = round(`Stability %`, 1)),
-      caption = "Most Frequent Pattern Stability Across Temperature Levels by Dimension")
+kable(
+  dimension_stability |>
+    select(
+      "Stereotype Dimension" = noun_category,
+      "Total Combinations" = total_combinations,
+      "Stable Combinations" = stable_combinations,
+      "Stability %" = stability_pct
+    ) |>
+    mutate(`Stability %` = round(`Stability %`, 1)),
+  caption = "Most Frequent Pattern Stability Across Temperature Levels by Dimension"
+)
 
 # ============================================================================
 # Stability by Language within Each Dimension
@@ -1259,12 +1324,17 @@ language_dimension_stability <- pattern_stability |>
 for (dim in unique(language_dimension_stability$noun_category)) {
   cat(sprintf("\n%s:\n", dim))
   cat(strrep("-", 70), "\n")
-  
+
   language_dimension_stability |>
     filter(noun_category == dim) |>
     mutate(
-      output = sprintf("  %s: %.1f%% stable (%d/%d)",
-                       lang, stability_pct, stable_combinations, total_combinations)
+      output = sprintf(
+        "  %s: %.1f%% stable (%d/%d)",
+        lang,
+        stability_pct,
+        stable_combinations,
+        total_combinations
+      )
     ) |>
     pull(output) |>
     walk(~ cat(.x, "\n"))
@@ -1273,17 +1343,18 @@ for (dim in unique(language_dimension_stability$noun_category)) {
 cat("\n")
 
 # Full table
-kable(language_dimension_stability |>
-        select("Stereotype Dimension" = noun_category,
-               "Language" = lang,
-               "Total Combinations" = total_combinations,
-               "Stable Combinations" = stable_combinations,
-               "Stability %" = stability_pct) |>
-        mutate(`Stability %` = round(`Stability %`, 1)),
-      caption = "Most Frequent Pattern Stability by Dimension and Language")
-
-
-
+kable(
+  language_dimension_stability |>
+    select(
+      "Stereotype Dimension" = noun_category,
+      "Language" = lang,
+      "Total Combinations" = total_combinations,
+      "Stable Combinations" = stable_combinations,
+      "Stability %" = stability_pct
+    ) |>
+    mutate(`Stability %` = round(`Stability %`, 1)),
+  caption = "Most Frequent Pattern Stability by Dimension and Language"
+)
 
 
 # Calculate entropy by category and temperature
@@ -1363,18 +1434,20 @@ parity_variation <- model_dimension_parity |>
   ) |>
   arrange(desc(abs(mean_parity_gap)))
 
-parity_variation |>
+tab6 <- parity_variation |>
   mutate(
     across(where(is.numeric), ~ sprintf("%.1f", .x))
-  ) |>
-  kable(
-    col.names = c(
-      "Dimension",
-      "Mean Gap (%)",
-      "SD (%)",
-      "Range (%)"
-    )
   )
+saveRDS(tab6, "tables/tab-6.rds")
+kable(
+  tab6,
+  col.names = c(
+    "Dimension",
+    "Mean Gap (%)",
+    "SD (%)",
+    "Range (%)"
+  )
+)
 ```
 
 *Note. Parity gap = % Men-only − % Women-only associations. Positive values indicate male bias; negative values indicate female bias. SD = standard deviation across all 24 models. Range = maximum parity gap − minimum parity gap across models.*
@@ -1595,19 +1668,21 @@ concentration_summary <- concentration_by_cat |>
   ) |>
   arrange(desc(abs(mean_change)))
 
-concentration_summary |>
+tab7 <- concentration_summary |>
   mutate(
     across(where(is.numeric), ~ sprintf("%.2f", .x))
-  ) |>
-  kable(
-    col.names = c(
-      "Dimension",
-      "Mean Low (T=0)",
-      "Mean High (T=1)",
-      "Mean Change",
-      "SD"
-    )
   )
+saveRDS(tab7, "tables/tab-7.rds")
+kable(
+  tab7,
+  col.names = c(
+    "Dimension",
+    "Mean Low (T=0)",
+    "Mean High (T=1)",
+    "Mean Change",
+    "SD"
+  )
+)
 ```
 
 ## Table 8
@@ -1615,7 +1690,7 @@ concentration_summary |>
 ```{r tbl-8}
 #| tbl-cap: "Shannon entropy values by stereotype dimension for the lowest (0) and highest (1) temperature"
 # Simple entropy summary (calculated in Table 6 section)
-entropy_by_cat_comparison |>
+tab8 <- entropy_by_cat_comparison |>
   group_by(noun_category) |>
   summarise(
     mean_low_entropy = mean(low_temp_entropy, na.rm = TRUE),
@@ -1636,16 +1711,18 @@ entropy_by_cat_comparison |>
   ) |>
   mutate(
     across(where(is.numeric), ~ sprintf("%.3f", .x))
-  ) |>
-  kable(
-    col.names = c(
-      "Dimension",
-      "Low Temp (T=0)",
-      "High Temp (T=1)",
-      "Change",
-      "SD"
-    )
   )
+saveRDS(tab8, "tables/tab-8.rds")
+kable(
+  tab8,
+  col.names = c(
+    "Dimension",
+    "Low Temp (T=0)",
+    "High Temp (T=1)",
+    "Change",
+    "SD"
+  )
+)
 ```
 
 ## Supplementary Analysis: Linear Regression by Dimension
