@@ -13,7 +13,7 @@ author:
     - Department of Psychology, Faculty of Education and Health Sciences, University of Limerick, Limerick, Ireland
 - name: Michaela Maier
   affiliation: Department of Psychology, RPTU Kaiserslautern-Landau, Germany
-- name: Dren Gërguri
+- name: Dren Gërguri^[**Corresponding author**. University of Prishtina, Kosovo, St. Tirana, no.42, K4S2, Prishtina, 10000, Kosovo, [dren.gerguri@uni-pr.edu](mailto:dren.gerguri@uni-pr.edu).]
   affiliation: Department of Journalism, University of Prishtina, Kosovo (corresponding author)
 - name: Jaromír Mazak
   affiliation: STEM institute, Czech Republic
@@ -22,12 +22,6 @@ author:
 abstract: |
   The representation of gender in large language models (LLMs) can reflect and reinforce existing sociocultural inequalities. However, the nature of such gender biases can differ significantly across languages, influenced by linguistic features and a model's training data. In this study, we investigate gender representation in 24 open-weight LLMs across six linguistically distinct languages (English, German, Russian, Czech, Albanian, and Serbian). Extending beyond binary frameworks, we incorporate nonbinary individuals as response options and examine associations across psychometrically validated stereotype dimensions (agency, communality, dominance, weakness, and giftedness). Our analysis accounts for variations between and within model families and differences in sampling parameters. The results reveal that traditional gender stereotypes persist with varying degrees of strength, while nonbinary associations show substantial cross-linguistic variations. Temperature analysis demonstrates that such associations are deeply embedded in model parameters rather than being artifacts of sampling procedures. These findings suggest that gender bias identification and potential mitigation in LLMs are shaped by both contextual and technical factors. Overall, our findings challenge the notion that gender bias is a simple, measurable construct, highlighting its complex, context-dependent nature across languages, models, and stereotype dimensions. Effective bias mitigation requires interventions at the level of training data, model architecture, or alignment procedures.
 keywords: Bias, Gender, Multilingual, LLM, generative AI
-corresponding: |
-  Dren Gërguri, University of Prishtina, Kosovo, 
-  St. Tirana, no.42, K4S2, Prishtina, 10000, Kosovo
-  dren.gerguri@uni-pr.edu
-acknowledgments: |
-  This publication has emanated from research jointly funded by Taighde Éireann – Research Ireland under Grant number 13/RC/2094_2, the European Union’s Marie Sklodowska-Curie Actions under grant number 101126578 and was supported in part by University of Galway. Views and opinions expressed are however those of the author(s) only and do not necessarily reflect those of the European Union or the European Research Executive Agency. Neither the European Union nor the granting authority can be held responsible for them. Grant recipient: Ana Jovančević.
 volume: 8
 pubnumber: 2
 pubyear: 2026
@@ -497,6 +491,10 @@ Taken together, our results challenge simplistic narratives about bias measureme
 - Beyond binary frameworks: Our findings highlight both the value and limitations of extending binary measurement frameworks to include nonbinary categories. Future work must develop measurement and mitigation approaches grounded in nonbinary conceptualizations of gender from the outset, rather than treating nonbinary identities as an addition to binary frameworks.
 
 Although our study offers important methodological innovations and initial insights, it represents only a first step toward understanding and addressing the complex patterns of gender bias in LLMs. Continued interdisciplinary collaboration among researchers, close engagement with gender-diverse communities, and sustained commitment from model developers will be essential to ensure that future LLMs represent gender accurately, respectfully, and with sensitivity to diverse cultural contexts and values.
+
+## Acknowledgments
+
+This publication has emanated from research jointly funded by Taighde Éireann – Research Ireland under Grant number 13/RC/2094_2, the European Union’s Marie Sklodowska-Curie Actions under grant number 101126578 and was supported in part by University of Galway. Views and opinions expressed are however those of the author(s) only and do not necessarily reflect those of the European Union or the European Research Executive Agency. Neither the European Union nor the granting authority can be held responsible for them. Grant recipient: Ana Jovančević.
 
 \newpage
 # References
