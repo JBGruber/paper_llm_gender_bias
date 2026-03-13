@@ -6,7 +6,7 @@ author:
 - name: Emese Domahidi
   affiliation: Technische Universität Ilmenau, Ilmenau, Germany
 - name: Johannes B. Gruber
-  affiliation: Department Data Services for the Social Sciences, GESIS – Leibniz Institute for the Social Sciences
+  affiliation: Department Data Services for the Social Sciences, GESIS – Leibniz Institute for the Social Sciences, Germany
 - name: Ana Jovančević
   affiliation: 
     - Lero the Research Ireland Centre for Software, Tierney Building, University of Limerick, Limerick, Ireland`\\`{=latex}Department of Psychology, Faculty of Education and Health Sciences, University of Limerick, Limerick, Ireland

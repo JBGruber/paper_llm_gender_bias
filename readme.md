@@ -38,3 +38,11 @@ for (qmd_file in qmd_files) {
 ```
 
 Note on package versions: they should not matter. You can download the rendered html reports to see what we've used, which are just the newest versions of the packages as of October 2025.
+
+## Render Manuscript
+
+You can render the full manuscript by using the files in the `manuscript` directory with:
+
+```
+quarto render manuscript/llm-bias.qmd
+```
