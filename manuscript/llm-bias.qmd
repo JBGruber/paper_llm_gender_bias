@@ -162,10 +162,22 @@ Another criterion was model popularity. We selected the models that were most fr
 
 Another consideration was language support. @tbl-langs shows the official language support for the models selected, which at first glance may appear to limit our model choices. However, it is surprisingly difficult to find information on supported languages. Official documentation is often incomplete or vague; for instance, GPT-OSS mentions support for "14 languages" without listing them, Gemma 3 claims "140+ languages" without specifying which ones, and Mistral models provide only partial lists of supported languages. Moreover, the distinction between *officially supported* and *functionally capable* is often unclear in practice. Many models are trained on multilingual data that include languages not listed in official documentation. For example, Llama 3.1 and 3.2 were trained on broader language collections than their eight officially supported languages, and user reports demonstrated varying degrees of success with unofficial languages. Given the opacity of official documentation and evidence that models often perform adequately in languages beyond their stated support, we based our model selection on empirical testing rather than official language lists.
 
-<!-- TODO: better way to make sure the table is not split between two pages? -->
-\newpage
-\footnotesize
+To capture the stochastic nature of LLM outputs and explore how sampling parameters affect gender bias manifestation, we employed the following:
+
+- Five iterations per word--model--temperature combination to account for output variability
+
+- Six temperature settings (0.0, 0.2, 0.4, 0.6, 0.8, and 1) to observe bias patterns across different levels of randomness in model generation
+
+Each model was queried using the standardized prompt for each noun in each language (see above), repeated across all temperature settings and iterations. This resulted in a comprehensive dataset of responses across all word--model--temperature--language combinations, with the exception of Albanian in the Mistral model.
+
+Responses were recorded verbatim and then processed to extract the gender association (man/woman/nonbinary). The outputs were aggregated to calculate the frequency of associations and identify patterns of bias (see the details in the Data Analysis section below).
+
+It is important to note that during preliminary testing, we discovered that the Mistral model consistently failed to produce outputs or generated nonsensical responses when prompted in Albanian. This consistent failure indicates limitations in the model's Albanian language capabilities; consequently, Albanian was excluded from the Mistral model analyses. This limitation highlights the uneven distribution of linguistic capabilities across contemporary LLMs, particularly for less-resourced languages.
+
+This systematic approach to stimulus development, translation, prompt design, and data collection ensured the validity and reliability of our findings while addressing methodological gaps in previous research on gender bias in multilingual contexts
+
 ::: {#tbl-langs}
+\footnotesize
 | Model | ENG | DEU | SRP | RUS | CZE | ALB |
 |--------------|---|---|---|---|---|---|
 | deepseek-r1:*[^deepseek-r1] | $\checkmark$ | $-$ | $-$ | $-$ | $-$ | $-$ |
@@ -180,6 +192,7 @@ Another consideration was language support. @tbl-langs shows the official langua
 | qwen2.5:*[^qwen] | $\checkmark$ | $\checkmark$ | $-$ | $\checkmark$ | $-$ | $-$ |
 
 : Official language support for LLMs used in this study. Based on systematic verification of official documentation from model providers (January 2025). *Legend*: $\checkmark$ = Officially supported with explicit documentation; $-$ = Not officially supported or no explicit documentation available.
+\normalsize
 :::
 
 [^deepseek-r1]: Only English and Chinese officially supported ([GitHub](https://github.com/deepseek-ai/DeepSeek-R1); [Hugging Face](https://huggingface.co/deepseek-ai/DeepSeek-R1)).
@@ -192,20 +205,6 @@ Another consideration was language support. @tbl-langs shows the official langua
 [^mistral]: Neither the official announcement nor the model card mention supported languages other than English ([model announcement](https://mistral.ai/news/announcing-mistral-7b); [Model Card](https://huggingface.co/mistralai/Mistral-7B-v0.1)).
 [^mistral-small]: Explicitly languages *including* English, French, German, Greek, Hindi, Indonesian, Italian, Japanese, Korean, Malay, Nepali, Polish, Portuguese, Romanian, Russian, Serbian, Spanish, Swedish, Turkish, Ukrainian, Vietnamese, Arabic, Bengali, Chinese, Farsi ([Model Card](https://huggingface.co/mistralai/Mistral-Small-3.1-24B-Instruct-2503); [Mistral AI](https://mistral.ai/news/mistral-small-3-1)).
 [^qwen]: 29+ languages officially supported, including Chinese, English, French, Spanish, Portuguese, German, Italian, Russian, Japanese, Korean, Vietnamese, Thai, and Arabic. Serbian, Czech, and Albanian not explicitly listed ([GitHub](https://github.com/QwenLM/Qwen2.5); [Model Card](https://www.alibabacloud.com/help/en/model-studio/what-is-qwen-llm)).
-
-To capture the stochastic nature of LLM outputs and explore how sampling parameters affect gender bias manifestation, we employed the following:
-
-- Five iterations per word--model--temperature combination to account for output variability
-
-- Six temperature settings (0.0, 0.2, 0.4, 0.6, 0.8, and 1) to observe bias patterns across different levels of randomness in model generation
-
-Each model was queried using the standardized prompt for each noun in each language (see above), repeated across all temperature settings and iterations. This resulted in a comprehensive dataset of responses across all word--model--temperature--language combinations, with the exception of Albanian in the Mistral model.
-
-Responses were recorded verbatim and then processed to extract the gender association (man/woman/nonbinary). The outputs were aggregated to calculate the frequency of associations and identify patterns of bias (see the details in the Data Analysis section below).
-
-It is important to note that during preliminary testing, we discovered that the Mistral model consistently failed to produce outputs or generated nonsensical responses when prompted in Albanian. This consistent failure indicates limitations in the model's Albanian language capabilities; consequently, Albanian was excluded from the Mistral model analyses. This limitation highlights the uneven distribution of linguistic capabilities across contemporary LLMs, particularly for less-resourced languages.
-
-This systematic approach to stimulus development, translation, prompt design, and data collection ensured the validity and reliability of our findings while addressing methodological gaps in previous research on gender bias in multilingual contexts
 
 ## Data Analysis
 
