@@ -239,35 +239,40 @@
 \fussy
 \if@review
 \else
-  % Step 1: Scan affiliations, assign a unique number to each distinct one
-  \newcounter{uniqaffil}%
-  \renewcommand*{\do}[1]{%
-    \@ifundefined{ccr@affil@\detokenize{##1}}{%
-      \stepcounter{uniqaffil}%
-      \expandafter\xdef\csname ccr@affil@\detokenize{##1}\endcsname{\theuniqaffil}%
-      \expandafter\gdef\csname ccr@affiltext@\theuniqaffil\endcsname{##1}%
-    }{}%
+  \@ifundefined{ccr@authorblock}{%
+    % Step 1: Scan affiliations, assign a unique number to each distinct one
+    \newcounter{uniqaffil}%
+    \renewcommand*{\do}[1]{%
+      \@ifundefined{ccr@affil@\detokenize{##1}}{%
+        \stepcounter{uniqaffil}%
+        \expandafter\xdef\csname ccr@affil@\detokenize{##1}\endcsname{\theuniqaffil}%
+        \expandafter\gdef\csname ccr@affiltext@\theuniqaffil\endcsname{##1}%
+      }{}%
+    }%
+    \dolistloop{\listaffiliations}%
+    \edef\ccr@totalaffils{\theuniqaffil}%
+    %
+    % Step 2: Print authors with looked-up superscript numbers
+    \noindent
+    \def\@authsep{}%
+    \renewcommand*{\dotwo}[2]{%
+      \@authsep##1\textsuperscript{\csname ccr@affil@\detokenize{##2}\endcsname}%
+      \def\@authsep{, }%
+    }%
+    \looptwo\listauthors\listaffiliations
+    \par\vspace{0.5em}
+    %
+    % Step 3: Print each unique affiliation once
+    {\small\itshape\parskip=0pt\parindent=0pt
+    \newcounter{affilprint}%
+    \@whilenum\value{affilprint}<\ccr@totalaffils\do{%
+      \stepcounter{affilprint}%
+      \textsuperscript{\theaffilprint}\,\csname ccr@affiltext@\theaffilprint\endcsname\par
+    }}%
+  }{%
+    % Use Quarto-generated author/affiliation block (supports multiple affiliations per author)
+    \ccr@authorblock
   }%
-  \dolistloop{\listaffiliations}%
-  \edef\ccr@totalaffils{\theuniqaffil}%
-  %
-  % Step 2: Print authors with looked-up superscript numbers
-  \noindent
-  \def\@authsep{}%
-  \renewcommand*{\dotwo}[2]{%
-    \@authsep##1\textsuperscript{\csname ccr@affil@\detokenize{##2}\endcsname}%
-    \def\@authsep{, }%
-  }%
-  \looptwo\listauthors\listaffiliations
-  \par\vspace{0.5em}
-  %
-  % Step 3: Print each unique affiliation once
-  {\small\itshape\parskip=0pt\parindent=0pt
-  \newcounter{affilprint}%
-  \@whilenum\value{affilprint}<\ccr@totalaffils\do{%
-    \stepcounter{affilprint}%
-    \textsuperscript{\theaffilprint}\,\csname ccr@affiltext@\theaffilprint\endcsname\par
-  }}%
 \fi
 
 \vspace{1em}

@@ -9,7 +9,9 @@ author:
 - name: Johannes B. Gruber
   affiliation: Department Data Services for the Social Sciences, GESIS – Leibniz Institute for the Social Sciences, Germany
 - name: Ana Jovančević
-  affiliation: "Lero the Research Ireland Centre for Software, Tierney Building, University of Limerick, Limerick, Ireland; Department of Psychology, Faculty of Education and Health Sciences, University of Limerick, Limerick, Ireland"
+  affiliations:
+    - name: Lero the Research Ireland Centre for Software, Tierney Building, University of Limerick, Limerick, Ireland
+    - name: Department of Psychology, Faculty of Education and Health Sciences, University of Limerick, Limerick, Ireland
 - name: Michaela Maier
   affiliation: Department of Psychology, RPTU Kaiserslautern-Landau, Germany
 - name: Dren Gërguri^[**Corresponding author**. University of Prishtina, Kosovo, St. Tirana, no.42, K4S2, Prishtina, 10000, Kosovo, [dren.gerguri@uni-pr.edu](mailto:dren.gerguri@uni-pr.edu).]
