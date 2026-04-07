@@ -5,10 +5,10 @@ $endif$
 \makeatletter
 \gdef\ccr@authorblock{%
   \noindent
-  $for(by-author)$$it.name.literal$$if(it.affiliations)$\textsuperscript{$for(it.affiliations)$$it.number$$sep$,$endfor$}$endif$$sep$, $endfor$%
+  $for(by-author)$$it.name.literal$$if(it.affiliations)$\textsuperscript{$for(it.affiliations)$\@alph{$it.number$}$sep$,$endfor$}$endif$$sep$, $endfor$%
   \par\vspace{0.5em}%
   {\small\itshape\parskip=0pt\parindent=0pt%
-  $for(affiliations)$\textsuperscript{$it.number$}\,$it.name$\par
+  $for(affiliations)$\textsuperscript{\@alph{$it.number$}}\,$it.name$\par
   $endfor$}%
 }
 \makeatother
