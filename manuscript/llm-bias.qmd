@@ -39,6 +39,8 @@ format:
         path: _extensions/andrewheiss/wordcount/citeproc.lua
       - at: pre-quarto
         path: _extensions/andrewheiss/wordcount/wordcount.lua
+    include-before-body:
+      text: \setlength{\emergencystretch}{5em}
 pdf-engine: xelatex
 execute:
   echo: false
@@ -160,29 +162,32 @@ Another criterion was model popularity. We selected the models that were most fr
 
 Another consideration was language support. @tbl-langs shows the official language support for the models selected, which at first glance may appear to limit our model choices. However, it is surprisingly difficult to find information on supported languages. Official documentation is often incomplete or vague; for instance, GPT-OSS mentions support for "14 languages" without listing them, Gemma 3 claims "140+ languages" without specifying which ones, and Mistral models provide only partial lists of supported languages. Moreover, the distinction between *officially supported* and *functionally capable* is often unclear in practice. Many models are trained on multilingual data that include languages not listed in official documentation. For example, Llama 3.1 and 3.2 were trained on broader language collections than their eight officially supported languages, and user reports demonstrated varying degrees of success with unofficial languages. Given the opacity of official documentation and evidence that models often perform adequately in languages beyond their stated support, we based our model selection on empirical testing rather than official language lists.
 
-| Model | English | German | Serbian | Russian | Czech | Albanian |
-|-------|---------|--------|---------|---------|-------|----------|
+<!-- TODO: better way to make sure the table is not split between two pages? -->
+\newpage
+\footnotesize
+::: {#tbl-langs}
+| Model | ENG | DEU | SRP | RUS | CZE | ALB |
+|--------------|---|---|---|---|---|---|
 | deepseek-r1:*[^deepseek-r1] | $\checkmark$ | $-$ | $-$ | $-$ | $-$ | $-$ |
 | gemma:2b/7b[^gemma2] | $\checkmark$ | $-$ | $-$ | $-$ | $-$ | $-$ |
 | gemma3:*[^gemma3] | $\checkmark$ | $\checkmark$ | $-$ | $-$ | $-$ | $-$ |
 | gpt-oss:*[^gpt-oss] | $\checkmark$ | $-$ | $-$ | $-$ | $-$ | $-$ |
 | llama3:8b[^llama3] | $\checkmark$ | $-$ | $-$ | $-$ | $-$ | $-$ |
-| llama3.1:*[^llama31] | $\checkmark$ | $\checkmark$ | $-$ | $-$ | $-$ | $-$ |
-| llama3.2:*[^llama32] | $\checkmark$ | $\checkmark$ | $-$ | $-$ | $-$ | $-$ |
+| llama3.1+llama3.2:*[^llama31] | $\checkmark$ | $\checkmark$ | $-$ | $-$ | $-$ | $-$ |
 | llama4:latest[^llama4] | $\checkmark$ | $\checkmark$ | $-$ | $-$ | $-$ | $-$ |
 | mistral:latest[^mistral] | $\checkmark$ | $\checkmark$ | $-$ | $-$ | $-$ | $-$ |
 | mistral-small3.1:latest[^mistral-small] | $\checkmark$ | $\checkmark$ | $\checkmark$ | $\checkmark$ | $-$ | $-$ |
 | qwen2.5:*[^qwen] | $\checkmark$ | $\checkmark$ | $-$ | $\checkmark$ | $-$ | $-$ |
 
-: Official language support for LLMs used in this study. Based on systematic verification of official documentation from model providers (January 2025). *Legend*: $\checkmark$ = Officially supported with explicit documentation; $-$ = Not officially supported or no explicit documentation available. {#tbl-langs}
+: Official language support for LLMs used in this study. Based on systematic verification of official documentation from model providers (January 2025). *Legend*: $\checkmark$ = Officially supported with explicit documentation; $-$ = Not officially supported or no explicit documentation available.
+:::
 
 [^deepseek-r1]: Only English and Chinese officially supported ([GitHub](https://github.com/deepseek-ai/DeepSeek-R1); [Hugging Face](https://huggingface.co/deepseek-ai/DeepSeek-R1)).
 [^gemma2]: Only English officially supported ([Model Card](https://ai.google.dev/gemma/docs/core/model_card)).
 [^gemma3]: 140+ languages claimed, specific languages not listed ([Model Card](https://ai.google.dev/gemma/docs/core/model_card_3)).
 [^gpt-oss]: Model card shows benchmarks for Arabic, Bengali, Chinese, French, German, Hindi, Indonesian, Italian, Japanese, Korean, Portuguese, Spanish, Swahili, and Yoruba. Serbian, Russian, Czech, and Albanian not explicitly listed ([Model Card](https://arxiv.org/pdf/2508.10925); also see [OpenAI announcement](https://openai.com/index/introducing-gpt-oss/); [GitHub](https://github.com/openai/gpt-oss)).
 [^llama3]: "High-quality non-English data that covers over 30 languages", specific languages not listed ([Meta Blog](https://ai.meta.com/blog/meta-llama-3/)).
-[^llama31]: Officially supports 8 languages (English, German, French, Italian, Portuguese, Hindi, Spanish, Thai), trained on a broader collection of languages than these 8 supported languages, specific languages not listed ([Model Card](https://github.com/meta-llama/llama-models/blob/main/models/llama3_1/MODEL_CARD.md)).
-[^llama32]: Officially supports 8 languages (English, German, French, Italian, Portuguese, Hindi, Spanish, Thai), trained on a broader collection of languages than these 8 supported languages, specific languages not listed ([Model Card](https://github.com/meta-llama/llama-models/blob/main/models/llama3_2/MODEL_CARD.md)).
+[^llama31]: Officially supports 8 languages (English, German, French, Italian, Portuguese, Hindi, Spanish, Thai), trained on a broader collection of languages than these 8 supported languages, specific languages not listed ([Model Card Llama 3.2](https://github.com/meta-llama/llama-models/blob/main/models/llama3_1/MODEL_CARD.md) and [Model Card Llama 3.2](https://github.com/meta-llama/llama-models/blob/main/models/llama3_2/MODEL_CARD.md)).
 [^llama4]: Officially supports 12 languages (Arabic, English, French, German, Hindi, Indonesian, Italian, Portuguese, Spanish, Tagalog, Thai, Vietnamese), pre-training includes 200 total languages, specific languages not listed ([Model Card](https://github.com/meta-llama/llama-models/blob/main/models/llama4/MODEL_CARD.md)).
 [^mistral]: Neither the official announcement nor the model card mention supported languages other than English ([model announcement](https://mistral.ai/news/announcing-mistral-7b); [Model Card](https://huggingface.co/mistralai/Mistral-7B-v0.1)).
 [^mistral-small]: Explicitly languages *including* English, French, German, Greek, Hindi, Indonesian, Italian, Japanese, Korean, Malay, Nepali, Polish, Portuguese, Romanian, Russian, Serbian, Spanish, Swedish, Turkish, Ukrainian, Vietnamese, Arabic, Bengali, Chinese, Farsi ([Model Card](https://huggingface.co/mistralai/Mistral-Small-3.1-24B-Instruct-2503); [Mistral AI](https://mistral.ai/news/mistral-small-3-1)).
