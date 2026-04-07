@@ -213,7 +213,7 @@ To answer our research questions, we first classified the gender associations in
 
 For RQ1, RQ2, and RQ3, we employed chi-square tests of independence with appropriate factors based on each research question. All the analyses were performed using *R*. Chi-square tests are appropriate for our data because they examine associations between categorical variables without requiring assumptions about normality or homogeneity of variance that parametric tests presuppose. This nonparametric approach is particularly well suited to our multinomial outcome variable (seven gender patterns) and allows us to test whether the distribution of gender patterns differs significantly across our categorical predictor variables (stereotype dimensions, languages, and models).
 
-For RQ1 (examining whether gender representation differs across stereotype dimensions), we conducted a chi-square test of independence between stereotype dimensions (agency, communality, dominance, weakness, and academic giftedness) and gender association patterns. We supplemented this with standardized residuals to identify which specific dimension--pattern combinations were over- or underrepresented relative to expected values under independence. We also calculated Cramér's V as a measure of effect size.
+For RQ1 (examining whether gender representation differs across stereotype dimensions), we conducted a chi-square test of independence between stereotype dimensions (agency, communality, dominance, weakness, and academic giftedness) and gender association patterns. We supplemented this with standardized residuals to identify which specific dimension--pattern combinations were over- or underrepresented relative to expected values under independence. We also calculated Cramér's *V* as a measure of effect size.
 
 To address RQ2 (investigating variation in gender representation across languages), we conducted a three-way chi-square test examining the association between language (English, German, Russian, Czech, Albanian, and Serbian), stereotype dimension, and gender pattern. We also performed separate chi-square tests for each stereotype dimension to identify which dimensions showed the strongest language effects.
 
@@ -243,7 +243,7 @@ readRDS("../tables/tab-2.rds") |>
   kable(format = "latex", booktabs = TRUE) |>
   kable_styling(full_width = TRUE, font_size = 7) |>
   column_spec(1L, width = "1.1cm") |>
-  add_footnote("Note. *p < .05, **p < .01, ***p < .001", notation = "none")
+  add_footnote("Note. *\\textit{p} < .05, **\\textit{p} < .01, ***\\textit{p} < .001", notation = "none", escape = FALSE)
 ```
 
 
@@ -251,7 +251,7 @@ readRDS("../tables/tab-2.rds") |>
 
 As can be observed from @fig-1 and @tbl-2, distinct gender association profiles emerged across stereotype dimensions. Dominance showed the strongest association with men, with men-only associations occurring far more frequently than expected (*z* = 128.99), while women-only (*z* = −87.77), nonbinary-only (*z* = −39.08), and all-three (*z* = −12.62) associations were significantly underrepresented. Communality demonstrated the opposite pattern, with women-only associations substantially overrepresented (*z* = 105.64) and men-only associations dramatically underrepresented (*z* = −103.56), aligning with traditional gender stereotypes [@kosakowska-berezecka_gendered_2023]. This dimension also showed elevated women + nonbinary associations (*z* = 6.55), suggesting that stereotypical associations with women may extend to nonbinary individuals.
 
-Weakness similarly followed stereotypical patterns, with substantially overrepresented women-only (z = 56.99) associations and substantially underrepresented men-only (*z* = −55.03) associations. Notably, this dimension also showed an overrepresentation of men + women (*z* = 5.31) associations. Agency displayed a more complex pattern, with men-only (*z* = 35.04), nonbinary-only (*z* = 24.93), and all-three (*z* = 17.02) associations overrepresented, while women-only associations were strongly underrepresented (*z* = −72.52). Giftedness showed the most balanced patterns across gender categories, with modest overrepresentation of nonbinary-only (*z* = 16.64) and women + nonbinary (*z* = 4.07) associations.
+Weakness similarly followed stereotypical patterns, with substantially overrepresented women-only (*z* = 56.99) associations and substantially underrepresented men-only (*z* = −55.03) associations. Notably, this dimension also showed an overrepresentation of men + women (*z* = 5.31) associations. Agency displayed a more complex pattern, with men-only (*z* = 35.04), nonbinary-only (*z* = 24.93), and all-three (*z* = 17.02) associations overrepresented, while women-only associations were strongly underrepresented (*z* = −72.52). Giftedness showed the most balanced patterns across gender categories, with modest overrepresentation of nonbinary-only (*z* = 16.64) and women + nonbinary (*z* = 4.07) associations.
 
 These findings reveal that traditional gender stereotypes persist strongly for the dominance and communality dimensions, consistent with conventional expectations in which dominance is associated primarily with men and communality with women. However, the inclusion of nonbinary associations reveals more nuanced patterns, particularly in the agency and giftedness dimensions, which show a greater share of associations with nonbinary individuals and multi-gender associations. The weakness dimension, while following traditional women-centric stereotypes, demonstrates higher rates of combined gender associations, suggesting that this trait might be encoded as less gender exclusive within the LLMs. The overall pattern indicates that LLMs' gender representations largely mirror traditional binary stereotype structures for dominance and communality but show more complex distributions for agency and giftedness.
 
@@ -275,8 +275,8 @@ readRDS("../tables/tab-3.rds") |>
       "Dimension",
       "χ²",
       "df",
-      "p",
-      "Cramér\'s V"
+      "\\textit{p}",
+      "Cramér's \\textit{V}"
     )
   )
 ```
@@ -291,9 +291,9 @@ A chi-square test examining the association between model and gender association
 
 ![Distributions of gender association patterns by model.](../figures/svg/figure_3_faceted.svg){#fig-3}
 
-As shown in @fig-3, there is substantial variation in gender representation, even between models of the same families. The Mistral family exhibited the highest within-family inconsistency (average SD = 14.1, maximum range = 46.8%), followed by the DeepSeek family (average SD = 8.6, maximum range = 44.6%). The Gemma, Llama, and Qwen families showed similarly moderate within-family variation (for Llama average SD = 7.18, maximum range = 30.4%; for Gemma average SD = 6.85, maximum range = 29.0%; for Qwen average SD = 6.31, maximum range = 33.8%). These findings reveal substantial heterogeneity in gender representation across models, even within the same model families. Notably, the smallest and largest models within families often showed the most extreme patterns, although not consistently in the same direction. The Mistral and DeepSeek families showed the highest variability, suggesting that certain model architectures or training procedures may contribute to less stable gender representations across model sizes.
+As shown in @fig-3, there is substantial variation in gender representation, even between models of the same families. The Mistral family exhibited the highest within-family inconsistency (average *SD* = 14.1, maximum range = 46.8%), followed by the DeepSeek family (average *SD* = 8.6, maximum range = 44.6%). The Gemma, Llama, and Qwen families showed similarly moderate within-family variation (for Llama average *SD* = 7.18, maximum range = 30.4%; for Gemma average *SD* = 6.85, maximum range = 29.0%; for Qwen average *SD* = 6.31, maximum range = 33.8%). These findings reveal substantial heterogeneity in gender representation across models, even within the same model families. Notably, the smallest and largest models within families often showed the most extreme patterns, although not consistently in the same direction. The Mistral and DeepSeek families showed the highest variability, suggesting that certain model architectures or training procedures may contribute to less stable gender representations across model sizes.
 
-In addition, we calculated the coefficient of variation (CV) for each pattern type to further examine the variability observed across specific gender patterns. The CV is a standardized measure of dispersion that expresses the standard deviation as a percentage of the mean (CV = (SD/Mean) × 100), allowing for a comparison of variability across distributions with different means. The analysis revealed that nonbinary-only associations showed substantially higher variability across models (CV = 76.55%) compared to women-only (CV = 50.26%) and men-only (CV = 31.79%) patterns, which were comparatively homogeneous. This differential variability likely reflects a less consistent and more limited representation 
+In addition, we calculated the coefficient of variation (CV) for each pattern type to further examine the variability observed across specific gender patterns. The CV is a standardized measure of dispersion that expresses the standard deviation as a percentage of the mean (CV = (*SD*/Mean) × 100), allowing for a comparison of variability across distributions with different means. The analysis revealed that nonbinary-only associations showed substantially higher variability across models (CV = 76.55%) compared to women-only (CV = 50.26%) and men-only (CV = 31.79%) patterns, which were comparatively homogeneous. This differential variability likely reflects a less consistent and more limited representation 
 of nonbinary individuals in the models' respective training corpora, resulting in less stable learned associations. By contrast, the relative homogeneity of women-only and men-only patterns suggests that these binary gender stereotypes are more uniformly encoded across different model architectures and training procedures.
 
 
@@ -302,9 +302,9 @@ of nonbinary individuals in the models' respective training corpora, resulting i
 Separate chi-square tests examining model effects within each language all revealed significant associations, with effect sizes ranging from medium to large (see @tbl-4). This indicates that models exhibit different gender representation patterns depending on the language, with no single pattern predominating across all model–language combinations.
 A summary of language-specific model effects is presented in @tbl-4. In addition, in @fig-4, we show the most frequent gender association patterns by model and language. The most common pattern is shown rather than all patterns to maintain the readability of @fig-4. Notably, when aggregated across all dimensions, no model--language combination displayed women-only as the most frequent association pattern.
 
-As shown in @tbl-4, all languages showed significant model variations in gender patterns, but the magnitude of these differences varied considerably. Czech displayed the strongest model effect (Cramér's V = .512), followed by Serbian (V = .439) and Russian (V = .386), indicating that the models showed highly divergent gender association patterns in these languages. German showed the weakest, though still substantial, model effect (V = .356), with Albanian (V = .364) and English (V = .362) exhibiting similarly moderate effects, suggesting relatively greater consistency across models in these languages compared to Czech and Serbian.
+As shown in @tbl-4, all languages showed significant model variations in gender patterns, but the magnitude of these differences varied considerably. Czech displayed the strongest model effect (Cramér's *V* = .512), followed by Serbian (*V* = .439) and Russian (*V* = .386), indicating that the models showed highly divergent gender association patterns in these languages. German showed the weakest, though still substantial, model effect (*V* = .356), with Albanian (*V* = .364) and English (*V* = .362) exhibiting similarly moderate effects, suggesting relatively greater consistency across models in these languages compared to Czech and Serbian.
 
-Analysis of within-language model consistency revealed that English demonstrated the most consistent gender patterns across models (average SD = 11.5), while Czech showed the least consistency (average SD = 17.9), with models displaying extremely varied patterns ranging from near-exclusive focus on single patterns to more balanced distributions. German and Russian showed moderate consistency (SD = 12.0 and 12.3, respectively), while Albanian and Serbian fell between these extremes (SD = 14.6 and 15.0, respectively).
+Analysis of within-language model consistency revealed that English demonstrated the most consistent gender patterns across models (average *SD* = 11.5), while Czech showed the least consistency (average *SD* = 17.9), with models displaying extremely varied patterns ranging from near-exclusive focus on single patterns to more balanced distributions. German and Russian showed moderate consistency (*SD* = 12.0 and 12.3, respectively), while Albanian and Serbian fell between these extremes (*SD* = 14.6 and 15.0, respectively).
 
 ![The most frequent gender association patterns by model and language.](../figures/svg/figure_4.svg){#fig-4}
 
@@ -318,8 +318,8 @@ readRDS("../tables/tab-4.rds") |>
       "Dimension",
       "χ²",
       "df",
-      "p",
-      "Cramér\'s V"
+      "\\textit{p}",
+      "Cramér's \\textit{V}"
     )
   )
 ```
@@ -328,9 +328,9 @@ These findings indicate that there is no language for which all models or even m
 
 ## RQ3c: Do different models vary in gender representation across stereotype dimensions?
 
-A three-way chi-square test examining the model × stereotype dimension × gender pattern interaction revealed a significant effect, χ²(714) = 114845, *p* \< .001, Cramér's V = .344. The effect size was medium (Cramér's V² = .119). This substantial effect indicates that models exhibit different gender representation patterns for different stereotype dimensions. The results for the most frequent association patterns per gender-stereotype dimension are presented in @fig-5, with a summary of dimension-specific model effects in @tbl-5.
+A three-way chi-square test examining the model × stereotype dimension × gender pattern interaction revealed a significant effect, χ²(714) = 114845, *p* \< .001, Cramér's *V* = .344. The effect size was medium (Cramér's *V*² = .119). This substantial effect indicates that models exhibit different gender representation patterns for different stereotype dimensions. The results for the most frequent association patterns per gender-stereotype dimension are presented in @fig-5, with a summary of dimension-specific model effects in @tbl-5.
 
-To examine the strength of model effects within each dimension, separate chi-square tests were conducted (see @tbl-5). All dimensions showed significant model variations in gender patterns, but the magnitude of these differences varied. Communality displayed the strongest model effect (Cramér's V = .314), followed by giftedness (V = .299), agency (V = .274), dominance (V = .271), and weakness (V = .270). Although the effect sizes varied across dimensions, all were substantial, indicating that the models showed divergent gender association patterns across all stereotype dimensions.
+To examine the strength of model effects within each dimension, separate chi-square tests were conducted (see @tbl-5). All dimensions showed significant model variations in gender patterns, but the magnitude of these differences varied. Communality displayed the strongest model effect (Cramér's *V* = .314), followed by giftedness (*V* = .299), agency (*V* = .274), dominance (*V* = .271), and weakness (*V* = .270). Although the effect sizes varied across dimensions, all were substantial, indicating that the models showed divergent gender association patterns across all stereotype dimensions.
 
 ![The most frequent gender association patterns by model and stereotype dimension.](../figures/svg/figure_5.svg){#fig-5}
 
@@ -348,13 +348,13 @@ readRDS("../tables/tab-5.rds") |>
       "Dimension",
       "χ²",
       "df",
-      "p",
-      "Cramér\'s V"
+      "\\textit{p}",
+      "Cramér's \\textit{V}"
     )
   )
 ```
 
-Analysis of within-dimension model consistency revealed that dominance demonstrated the most consistent gender patterns across models (average SD = 8.81), followed closely by weakness (SD = 9.30) and agency (SD = 9.33). Communality and giftedness showed the least consistency (SD = 11.07 and 10.84, respectively), with the models displaying more varied patterns within these dimensions.
+Analysis of within-dimension model consistency revealed that dominance demonstrated the most consistent gender patterns across models (average *SD* = 8.81), followed closely by weakness (*SD* = 9.30) and agency (*SD* = 9.33). Communality and giftedness showed the least consistency (*SD* = 11.07 and 10.84, respectively), with the models displaying more varied patterns within these dimensions.
 
 As shown in @fig-5, distinct patterns emerged that both aligned with and contradicted traditional gender stereotypes. For communality and weakness---dimensions traditionally associated with women---most models showed predominantly women-only associations, although with exceptions. Dominance and agency---dimensions traditionally associated with men---showed the expected men-only dominance across most models. This represents a strong alignment with traditional stereotypes across the model landscape. Giftedness exhibited the most varied patterns across models.
 
@@ -367,14 +367,14 @@ readRDS("../tables/tab-6.rds") |>
     col.names = c(
       "Dimension",
       "Mean Gap (%)",
-      "SD (%)",
+      "\\textit{SD} (%)",
       "Range (%)"
     ),
     booktabs = TRUE
   ) |>
   kable_styling() |>
   add_footnote(
-    "Note. Parity gap = % Men-only − % Women-only associations. Positive values indicate men bias; negative values indicate women bias. SD = standard deviation across all 24 models. Range = maximum parity gap − minimum parity gap across models.",
+    "Note. Parity gap = % Men-only − % Women-only associations. Positive values indicate men bias; negative values indicate women bias. \\textit{SD} = standard deviation across all 24 models. Range = maximum parity gap − minimum parity gap across models.",
     notation = "none"
   )
 ```
@@ -388,7 +388,7 @@ Gender parity gap by stereotype dimension.\
 *Note: Points show mean parity gap (% Men-only - % Women-only); shaded regions show ±1 SD across models. Large shaded regions indicate high model-to-model variation. Positive values indicate men bias (above zero line); negative values indicate women bias (below zero line).*
 :::
 
-To examine whether model variation reflects dimension-specific stereotype encoding or uniform model-level biases, we calculated parity gaps (% men-only − % women-only associations) for each model--dimension combination (see @tbl-6, @fig-6). Mean parity gaps aligned with traditional gender stereotypes: Dominance showed the strongest bias toward men (+22.7%), communality the strongest bias toward women (−16.7%), agency a moderate men-biased gap (+13.6%), weakness a moderate women-biased gap (−6.8%), and giftedness a nearly balanced distribution (+2.3%). However, the high standard deviations (SD = 28.5--36.1%) and ranges (93.6--121.4%) revealed substantial model-to-model disagreement within each dimension. These findings further confirm that gender associations in LLMs are dimension specific rather than reflecting uniform model-level biases.
+To examine whether model variation reflects dimension-specific stereotype encoding or uniform model-level biases, we calculated parity gaps (% men-only − % women-only associations) for each model--dimension combination (see @tbl-6, @fig-6). Mean parity gaps aligned with traditional gender stereotypes: Dominance showed the strongest bias toward men (+22.7%), communality the strongest bias toward women (−16.7%), agency a moderate men-biased gap (+13.6%), weakness a moderate women-biased gap (−6.8%), and giftedness a nearly balanced distribution (+2.3%). However, the high standard deviations (*SD* = 28.5--36.1%) and ranges (93.6--121.4%) revealed substantial model-to-model disagreement within each dimension. These findings further confirm that gender associations in LLMs are dimension specific rather than reflecting uniform model-level biases.
 
 ## RQ4: How do the model temperature settings relate to the strength of gender stereotype associations across languages, models, and stereotype dimensions?
 
@@ -409,7 +409,7 @@ readRDS("../tables/tab-7.rds") |>
       "Mean Low (T=0)",
       "Mean High (T=1)",
       "Mean Change",
-      "SD"
+      "\\textit{SD}"
     )
   )
 ```
@@ -425,12 +425,12 @@ readRDS("../tables/tab-8.rds") |>
       "Mean Low (T=0)",
       "Mean High (T=1)",
       "Mean Change",
-      "SD"
+      "\\textit{SD}"
     )
   )
 ```
 
-ANCOVA revealed significant main effects of temperature (F(1,4175) = 312.817, *p* \< .001) and dimension (F(4,4175) = 20.756, *p* \< .001) on entropy but no temperature × dimension interaction (F(4,4175) = 0.702, *p* = .591). This indicates that entropy increased with temperature across all dimensions at statistically equivalent rates.
+ANCOVA revealed significant main effects of temperature (*F*(1,4175) = 312.817, *p* \< .001) and dimension (*F*(4,4175) = 20.756, *p* \< .001) on entropy but no temperature × dimension interaction (*F*(4,4175) = 0.702, *p* = .591). This indicates that entropy increased with temperature across all dimensions at statistically equivalent rates.
 
 These findings provide evidence that gender stereotypical associations are embedded in model parameters and that embedding strength varies systematically across stereotype dimensions. The fact that concentration remained high across all dimensions, even at the maximum temperature (59.52%--65.98% at T = 1), indicates that these associations reflect learned representations rather than stochastic variation.
 
