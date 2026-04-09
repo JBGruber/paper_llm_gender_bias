@@ -238,11 +238,17 @@ A chi-square test of independence revealed a significant association between ste
 #| tbl-cap: "Standardized Residuals from Chi-Square Test of Independence by Stereotype Dimension and Association Pattern"
 library(knitr)
 library(kableExtra)
-readRDS("../tables/tab-2.rds") |>
-  kable(format = "latex", booktabs = TRUE) |>
-  kable_styling(full_width = TRUE, font_size = 7) |>
-  column_spec(1L, width = "1.1cm") |>
-  add_footnote("Note. *\\textit{p} < .05, **\\textit{p} < .01, ***\\textit{p} < .001", notation = "none", escape = FALSE)
+if (knitr::is_latex_output()) {
+  readRDS("../tables/tab-2.rds") |>
+    kable(format = "latex", booktabs = TRUE) |>
+    kable_styling(full_width = TRUE, font_size = 7) |>
+    column_spec(1L, width = "1.1cm") |>
+    add_footnote("Note. *\\textit{p} < .05, **\\textit{p} < .01, ***\\textit{p} < .001", notation = "none", escape = FALSE)
+} else {
+  readRDS("../tables/tab-2.rds") |>
+    kable(format = "markdown", booktabs = TRUE) |> 
+    add_footnote("Note. \\**p* < .05, \\*\\**p* < .01, \\*\\*\\**p* < .001", notation = "none", escape = FALSE)
+}
 ```
 
 
@@ -268,14 +274,14 @@ These findings indicate that while traditional gender stereotypes persist across
 #| tbl-cap: "Language Differences in Gender Association Patterns by Stereotype Dimension"
 readRDS("../tables/tab-3.rds") |>
   kable(
-    format = "latex",
+    format = "markdown",
     booktabs = TRUE,
     col.names = c(
       "Dimension",
       "χ²",
       "df",
-      "\\textit{p}",
-      "Cramér's \\textit{V}"
+      "*p*",
+      "Cramér's *V*"
     )
   )
 ```
@@ -311,14 +317,14 @@ Analysis of within-language model consistency revealed that English demonstrated
 #| tbl-cap: "Chi-Square Tests of Independence by Language"
 readRDS("../tables/tab-4.rds") |>
   kable(
-    format = "latex",
+    format = "markdown",
     booktabs = TRUE,
     col.names = c(
       "Dimension",
       "χ²",
       "df",
-      "\\textit{p}",
-      "Cramér's \\textit{V}"
+      "*p*",
+      "Cramér's *V*"
     )
   )
 ```
@@ -341,14 +347,14 @@ library(kableExtra)
 
 readRDS("../tables/tab-5.rds") |>
   kable(
-    format = "latex",
+    format = "markdown",
     booktabs = TRUE,
     col.names = c(
       "Dimension",
       "χ²",
       "df",
-      "\\textit{p}",
-      "Cramér's \\textit{V}"
+      "*p*",
+      "Cramér's *V*"
     )
   )
 ```
@@ -362,11 +368,11 @@ As shown in @fig-5, distinct patterns emerged that both aligned with and contrad
 #| tbl-cap: "Gender Parity Gap Statistics by Stereotype Dimension"
 readRDS("../tables/tab-6.rds") |>
   kable(
-    format = "latex",
+    format = "markdown",
     col.names = c(
       "Dimension",
       "Mean Gap (%)",
-      "\\textit{SD} (%)",
+      "*SD* (%)",
       "Range (%)"
     ),
     booktabs = TRUE
