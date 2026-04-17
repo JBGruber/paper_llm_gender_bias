@@ -1,6 +1,6 @@
 % Template for CCR Articles (very WIP)
 % 2023 Wouter van Atteveldt, Damian Trilling, Chung-hong Chan, Johannes B. Gruber
-% Version 0.04
+% Version 0.05
 % Please see https://github.com/ccr-journal/ccr-quarto for the latest version of this file
 
 \ProvidesClass{ccr}[2023-02-03 v0.01]
@@ -8,10 +8,17 @@
 
 \newif\if@review
 \@reviewfalse
+\newif\if@loadbiblatex
+\@loadbiblatextrue
 
 \DeclareOption{review}{\@reviewtrue}
+\DeclareOption{nobib}{\@loadbiblatexfalse}
 \ProcessOptions\relax
 
+\RequirePackage{ifxetex}
+\ifxetex\else
+  \pdfminorversion=7
+\fi
 \LoadClass[twoside]{article}
 
 %%%%%%%%%%%%% OVRERALL PAGE LAYOUT %%%%%%%%%%%%%%%%%%%
@@ -22,7 +29,6 @@
 
 \RequirePackage[english]{babel}
 \renewcommand*\oldstylenums[1]{\textosf{#1}}
-\RequirePackage{ifxetex}
 \ifxetex
   \RequirePackage[protrusion=true,final,babel]{microtype}
   \RequirePackage{fontspec}
@@ -30,7 +36,7 @@
   \setsansfont{Noto Sans}
   \usepackage{unicode-math}
   \defaultfontfeatures{ Scale=MatchLowercase, Ligatures=TeX }
-  \setmathfont{texgyretermes-math.otf}
+  \setmathfont{Erewhon-Math.otf}
 
 \else
   \RequirePackage[protrusion=true,expansion=true,final,babel]{microtype}
@@ -152,8 +158,8 @@
 
 %%%%%%%%%%%%%%%%%% Draft / review %%%%%%%%%%%%%%%%%%%%%%5
 
-\RequirePackage[pagewise]{lineno}
 \if@review
+    \RequirePackage[pagewise]{lineno}
     \RequirePackage{draftwatermark}
     \SetWatermarkText{\sffamily{For peer review}}
     \SetWatermarkScale{.5}
@@ -228,20 +234,30 @@
 
 %%%%%%%%%%%%%% Title page %%%%%%%%%%%%%%%%%%%%%
 \RequirePackage{calc}
-\RequirePackage{pstricks}
 \RequirePackage{hyphenat}
 
+% XeTeX lacks microtype font expansion, so enable \sloppy globally to
+% prevent overfull lines.  For pdfTeX, expansion=true in microtype
+% handles this, so we leave the default (\fussy) in place.
+\ifxetex
+  \AtBeginDocument{\sloppy}
+\fi
+
 \renewcommand{\maketitle}{%
-\sloppy
 \noindent{\fontsize{14}{13.5}\fontseries{b}\selectfont\raggedright\nohyphens{\@title}}
 \vspace{.5in}
 
-\fussy
 \if@review
 \else
+  % If a Quarto partial has pre-built the author block (e.g. older
+  % extensions defining \ccr@authorblock), use it directly.
+  % Otherwise fall through to the \looptwo dedup logic.
   \@ifundefined{ccr@authorblock}{%
-    % Step 1: Scan affiliations, assign a unique number to each distinct one
+    % Step 1: Scan affiliations, assign a unique letter to each distinct one.
+    % Affiliation superscripts use alphabetic markers (a, b, c, ...) so they
+    % don't collide visually with numeric footnote marks.
     \newcounter{uniqaffil}%
+    \renewcommand*{\theuniqaffil}{\alph{uniqaffil}}%
     \renewcommand*{\do}[1]{%
       \@ifundefined{ccr@affil@\detokenize{##1}}{%
         \stepcounter{uniqaffil}%
@@ -250,27 +266,34 @@
       }{}%
     }%
     \dolistloop{\listaffiliations}%
-    \edef\ccr@totalaffils{\theuniqaffil}%
+    \edef\ccr@totalaffils{\number\value{uniqaffil}}%
     %
-    % Step 2: Print authors with looked-up superscript numbers
+    % Step 2: Print authors with looked-up superscript letters (italicised
+    % inline so they read as affiliation markers rather than stray letters)
     \noindent
     \def\@authsep{}%
     \renewcommand*{\dotwo}[2]{%
-      \@authsep##1\textsuperscript{\csname ccr@affil@\detokenize{##2}\endcsname}%
+      \@authsep##1\textsuperscript{\textit{\csname ccr@affil@\detokenize{##2}\endcsname}}%
       \def\@authsep{, }%
     }%
     \looptwo\listauthors\listaffiliations
     \par\vspace{0.5em}
     %
     % Step 3: Print each unique affiliation once
-    {\small\itshape\parskip=0pt\parindent=0pt
+    % (parskip is zeroed locally so Pandoc-injected parskip from Quarto
+    % renders doesn't spread the affiliation lines apart)
+    {\small\itshape\parskip=0pt\relax
     \newcounter{affilprint}%
+    \renewcommand*{\theaffilprint}{\alph{affilprint}}%
     \@whilenum\value{affilprint}<\ccr@totalaffils\do{%
       \stepcounter{affilprint}%
+      % Measure the superscript+thinspace width so wrapped affiliation lines
+      % hang under the start of the text rather than under the marker.
+      \settowidth{\@tempdima}{\textsuperscript{\theaffilprint}\,}%
+      \noindent\hangindent=\@tempdima\hangafter=1
       \textsuperscript{\theaffilprint}\,\csname ccr@affiltext@\theaffilprint\endcsname\par
     }}%
   }{%
-    % Use Quarto-generated author/affiliation block (supports multiple affiliations per author)
     \ccr@authorblock
   }%
 \fi
@@ -321,9 +344,14 @@
 
 
 %%%%%%%%%%%%%% Reference handling %%%%%%%%%%%%%%%%%%%%%
-\RequirePackage{csquotes}
-% biblatex disabled: Quarto uses citeproc for citation processing
-%\RequirePackage[style=apa,sortcites=true,sorting=nyt,backend=biber]{biblatex}
-%\DeclareLanguageMapping{american}{american-apa}
-%\renewcommand{\bibfont}{\small}
-%\setlength{\bibhang}{\parindent}
+% When used via Quarto (which handles citations with citeproc), pass the
+% 'nobib' class option to skip biblatex entirely.
+\if@loadbiblatex
+  \RequirePackage{csquotes}
+  \RequirePackage[style=apa,sortcites=true,sorting=nyt,backend=biber]{biblatex}
+
+  \DeclareLanguageMapping{american}{american-apa}
+
+  \renewcommand{\bibfont}{\small}
+  \setlength{\bibhang}{\parindent}
+\fi

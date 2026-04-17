@@ -192,8 +192,9 @@ This systematic approach to stimulus development, translation, prompt design, an
 | qwen2.5:*[^qwen] | $\checkmark$ | $\checkmark$ | $-$ | $\checkmark$ | $-$ | $-$ |
 
 : Official language support for LLMs used in this study. Based on systematic verification of official documentation from model providers (January 2025). *Legend*: $\checkmark$ = Officially supported with explicit documentation; $-$ = Not officially supported or no explicit documentation available.
-\normalsize
 :::
+
+\normalsize
 
 [^deepseek-r1]: Only English and Chinese officially supported ([GitHub](https://github.com/deepseek-ai/DeepSeek-R1); [Hugging Face](https://huggingface.co/deepseek-ai/DeepSeek-R1)).
 [^gemma2]: Only English officially supported ([Model Card](https://ai.google.dev/gemma/docs/core/model_card)).
