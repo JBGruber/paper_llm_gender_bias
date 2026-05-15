@@ -414,7 +414,7 @@ readRDS(tbl_file) |>
     )
   ) |>
   add_footnote(
-    "Note. Parity gap = % Men-only − % Women-only associations. Positive values indicate men bias; negative values indicate women bias. \\textit{SD} = standard deviation across all 24 models. Range = maximum parity gap − minimum parity gap across models.",
+    "Parity gap = % Men-only − % Women-only associations. Positive values indicate men bias; negative values indicate women bias. \\textit{SD} = standard deviation across all 24 models. Range = maximum parity gap − minimum parity gap across models.",
     notation = "none"
   )
 ```
