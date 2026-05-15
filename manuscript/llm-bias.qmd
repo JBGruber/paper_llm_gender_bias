@@ -238,16 +238,28 @@ A chi-square test of independence revealed a significant association between ste
 #| tbl-cap: "Standardized Residuals from Chi-Square Test of Independence by Stereotype Dimension and Association Pattern"
 library(knitr)
 library(kableExtra)
+tbl_file <- "tables/tab-2.rds"
+dir.create(dirname(tbl_file), showWarnings = TRUE)
+file.copy(paste0("../", tbl_file), tbl_file, overwrite = TRUE)
+
 if (knitr::is_latex_output()) {
-  readRDS("../tables/tab-2.rds") |>
+  readRDS(tbl_file) |>
     kable(format = "latex", booktabs = TRUE) |>
     kable_styling(full_width = TRUE, font_size = 7) |>
     column_spec(1L, width = "1.1cm") |>
-    add_footnote("Note. *\\textit{p} < .05, **\\textit{p} < .01, ***\\textit{p} < .001", notation = "none", escape = FALSE)
+    add_footnote(
+      "Note. *\\textit{p} < .05, **\\textit{p} < .01, ***\\textit{p} < .001",
+      notation = "none",
+      escape = FALSE
+    )
 } else {
-  readRDS("../tables/tab-2.rds") |>
-    kable(format = "markdown", booktabs = TRUE) |> 
-    add_footnote("Note. \\**p* < .05, \\*\\**p* < .01, \\*\\*\\**p* < .001", notation = "none", escape = FALSE)
+  readRDS(tbl_file) |>
+    kable(format = "markdown", booktabs = TRUE) |>
+    add_footnote(
+      "Note. \\**p* < .05, \\*\\**p* < .01, \\*\\*\\**p* < .001",
+      notation = "none",
+      escape = FALSE
+    )
 }
 ```
 
@@ -272,7 +284,9 @@ These findings indicate that while traditional gender stereotypes persist across
 
 ```{r tbl-3}
 #| tbl-cap: "Language Differences in Gender Association Patterns by Stereotype Dimension"
-readRDS("../tables/tab-3.rds") |>
+tbl_file <- "tables/tab-3.rds"
+file.copy(paste0("../", tbl_file), tbl_file, overwrite = TRUE)
+readRDS(tbl_file) |>
   kable(
     format = "markdown",
     booktabs = TRUE,
@@ -315,7 +329,9 @@ Analysis of within-language model consistency revealed that English demonstrated
 
 ```{r tbl-4}
 #| tbl-cap: "Chi-Square Tests of Independence by Language"
-readRDS("../tables/tab-4.rds") |>
+tbl_file <- "tables/tab-4.rds"
+file.copy(paste0("../", tbl_file), tbl_file, overwrite = TRUE)
+readRDS(tbl_file) |>
   kable(
     format = "markdown",
     booktabs = TRUE,
@@ -341,11 +357,11 @@ To examine the strength of model effects within each dimension, separate chi-squ
 
 ```{r tbl-5}
 #| tbl-cap: "Chi-Square Tests of Independence by Stereotype Dimension"
-
 library(knitr)
 library(kableExtra)
-
-readRDS("../tables/tab-5.rds") |>
+tbl_file <- "tables/tab-5.rds"
+file.copy(paste0("../", tbl_file), tbl_file, overwrite = TRUE)
+readRDS(tbl_file) |>
   kable(
     format = "markdown",
     booktabs = TRUE,
@@ -366,7 +382,9 @@ As shown in @fig-5, distinct patterns emerged that both aligned with and contrad
 
 ```{r tbl-6}
 #| tbl-cap: "Gender Parity Gap Statistics by Stereotype Dimension"
-readRDS("../tables/tab-6.rds") |>
+tbl_file <- "tables/tab-6.rds"
+file.copy(paste0("../", tbl_file), tbl_file, overwrite = TRUE)
+readRDS(tbl_file) |>
   kable(
     format = "markdown",
     col.names = c(
@@ -407,7 +425,9 @@ The analysis of concentration strength revealed that all stereotype dimensions s
 
 ```{r tbl-7}
 #| tbl-cap: "Mean concentration strength by stereotype dimension for the lowest (0) and highest (1) temperature."
-readRDS("../tables/tab-7.rds") |>
+tbl_file <- "tables/tab-7.rds"
+file.copy(paste0("../", tbl_file), tbl_file, overwrite = TRUE)
+readRDS(tbl_file) |>
   kable(
     col.names = c(
       "Dimension",
@@ -423,7 +443,9 @@ Shannon entropy analysis showed that normalized entropy increased across all dim
 
 ```{r tbl-8}
 #| tbl-cap: "Shannon entropy values by stereotype dimension for the lowest (0) and highest (1) temperature."
-readRDS("../tables/tab-8.rds") |>
+tbl_file <- "tables/tab-8.rds"
+file.copy(paste0("../", tbl_file), tbl_file, overwrite = TRUE)
+readRDS(tbl_file) |>
   kable(
     col.names = c(
       "Dimension",
