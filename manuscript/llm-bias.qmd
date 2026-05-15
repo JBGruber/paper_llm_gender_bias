@@ -406,16 +406,13 @@ tbl_file <- "tables/tab-6.rds"
 invisible(file.copy(paste0("../", tbl_file), tbl_file, overwrite = TRUE))
 readRDS(tbl_file) |>
   kable(
-    format = "markdown",
     col.names = c(
       "Dimension",
       "Mean Gap (%)",
       "*SD* (%)",
       "Range (%)"
-    ),
-    booktabs = TRUE
+    )
   ) |>
-  kable_styling() |>
   add_footnote(
     "Note. Parity gap = % Men-only − % Women-only associations. Positive values indicate men bias; negative values indicate women bias. \\textit{SD} = standard deviation across all 24 models. Range = maximum parity gap − minimum parity gap across models.",
     notation = "none"
