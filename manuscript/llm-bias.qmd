@@ -49,6 +49,28 @@ execute:
 #  - review
 ---
 
+```{r setup}
+#| include: false
+# copy figures for CCR rendering
+dir.create("figures", showWarnings = FALSE)
+figs <- c(
+  "figures/svg/figure_1.svg",
+  "figures/svg/figure_2.svg",
+  "figures/svg/figure_3_faceted.svg",
+  "figures/svg/figure_4.svg",
+  "figures/svg/figure_5.svg",
+  "figures/svg/figure_6.svg"
+)
+file.copy(
+  paste0("../", figs),
+  "figures",
+  overwrite = TRUE,
+  recursive = TRUE
+)
+library(knitr)
+library(kableExtra)
+```
+
 The increasing adoption of large language models (LLMs) across various domains, from communication systems to content generation, has brought critical attention to their potential to replicate and reinforce societal biases, particularly those related to gender [@kotek_gender_2023, @lucy_gender_2021, @stoll_classification_2025, @zhao_gender_2024]. These biases are not incidental but deeply embedded in the extensive datasets on which these models are trained, as these datasets are often derived from internet-based text that mirrors historical and cultural inequities [@eagly_sex_2013]. Crucially, feminist scholars have long argued that discourse itself is a mechanism through which systematic underrepresentation is reproduced: The words, categories, and narrative structures available to us frame who is visible, who is silenced, and which social positions are normalized [e.g., @butler_gender_2011; @foucault_archaeology_1972; @smith_everyday_1987]. Thus, the discursive fabric underlying text corpora is not a neutral substrate but a site of power; this means that studying gender bias in LLMs is essential for understanding their societal implications, ensuring their responsible deployment in diverse contexts, and ultimately achieving gender justice in society [@mendes_feminist_2008].
 
 For example, as people now start to employ LLMs for learning, grading, hiring, and many more applications, it is important to understand how the biases embedded in these models shape the responses and decisions of these models. Because discourse systematically privileges certain social positions and marginalizes others (i.e., silencing or rendering nondominant groups invisible), an LLM trained on such a discursive corpus may replicate those same patterns of exclusion by underrepresenting women, nonbinary persons, or intersecting identities or by only representing them in stereotyped ways. This is more than a *data bias* problem---it is a problem of how language enacts power and social ordering; it is highly relevant in communication science, as it can substantially undermine an individual's opportunities in life, most notably by diminishing self-esteem, shaping how women are perceived in society, and restricting their professional advancement [@mendes_feminist_2008].
@@ -236,11 +258,9 @@ A chi-square test of independence revealed a significant association between ste
 
 ```{r tbl-2}
 #| tbl-cap: "Standardized Residuals from Chi-Square Test of Independence by Stereotype Dimension and Association Pattern"
-library(knitr)
-library(kableExtra)
 tbl_file <- "tables/tab-2.rds"
-dir.create(dirname(tbl_file), showWarnings = TRUE)
-file.copy(paste0("../", tbl_file), tbl_file, overwrite = TRUE)
+dir.create(dirname(tbl_file), showWarnings = FALSE)
+invisible(file.copy(paste0("../", tbl_file), tbl_file, overwrite = TRUE))
 
 if (knitr::is_latex_output()) {
   readRDS(tbl_file) |>
@@ -264,7 +284,7 @@ if (knitr::is_latex_output()) {
 ```
 
 
-![Distribution of gender associations by stereotype dimension.](../figures/svg/figure_1.svg){#fig-1}
+![Distribution of gender associations by stereotype dimension.](figures//figure_1.svg){#fig-1}
 
 As can be observed from @fig-1 and @tbl-2, distinct gender association profiles emerged across stereotype dimensions. Dominance showed the strongest association with men, with men-only associations occurring far more frequently than expected (*z* = 128.99), while women-only (*z* = −87.77), nonbinary-only (*z* = −39.08), and all-three (*z* = −12.62) associations were significantly underrepresented. Communality demonstrated the opposite pattern, with women-only associations substantially overrepresented (*z* = 105.64) and men-only associations dramatically underrepresented (*z* = −103.56), aligning with traditional gender stereotypes [@kosakowska-berezecka_gendered_2023]. This dimension also showed elevated women + nonbinary associations (*z* = 6.55), suggesting that stereotypical associations with women may extend to nonbinary individuals.
 
@@ -285,7 +305,7 @@ These findings indicate that while traditional gender stereotypes persist across
 ```{r tbl-3}
 #| tbl-cap: "Language Differences in Gender Association Patterns by Stereotype Dimension"
 tbl_file <- "tables/tab-3.rds"
-file.copy(paste0("../", tbl_file), tbl_file, overwrite = TRUE)
+invisible(file.copy(paste0("../", tbl_file), tbl_file, overwrite = TRUE))
 readRDS(tbl_file) |>
   kable(
     format = "markdown",
@@ -300,7 +320,7 @@ readRDS(tbl_file) |>
   )
 ```
 
-![Distributions of gender association patterns by language and category.](../figures/svg/figure_2.svg){#fig-2}
+![Distributions of gender association patterns by language and category.](figures//figure_2.svg){#fig-2}
 
 ## RQ3a: Do different models vary in gender representation?
 
@@ -308,7 +328,7 @@ Before examining how models differ in their representation of specific stereotyp
 
 A chi-square test examining the association between model and gender association patterns revealed a significant effect, χ²(138) = 63050.015, *p* \< .001, Cramér's *V* = .255. The effect size was small (Cramér's *V*² = .065). However, the systematic patterns across 24 models from six model families indicate that LLMs vary meaningfully in how they encode gender associations. All model patterns are presented in @fig-3.
 
-![Distributions of gender association patterns by model.](../figures/svg/figure_3_faceted.svg){#fig-3}
+![Distributions of gender association patterns by model.](figures//figure_3_faceted.svg){#fig-3}
 
 As shown in @fig-3, there is substantial variation in gender representation, even between models of the same families. The Mistral family exhibited the highest within-family inconsistency (average *SD* = 14.1, maximum range = 46.8%), followed by the DeepSeek family (average *SD* = 8.6, maximum range = 44.6%). The Gemma, Llama, and Qwen families showed similarly moderate within-family variation (for Llama average *SD* = 7.18, maximum range = 30.4%; for Gemma average *SD* = 6.85, maximum range = 29.0%; for Qwen average *SD* = 6.31, maximum range = 33.8%). These findings reveal substantial heterogeneity in gender representation across models, even within the same model families. Notably, the smallest and largest models within families often showed the most extreme patterns, although not consistently in the same direction. The Mistral and DeepSeek families showed the highest variability, suggesting that certain model architectures or training procedures may contribute to less stable gender representations across model sizes.
 
@@ -325,12 +345,12 @@ As shown in @tbl-4, all languages showed significant model variations in gender 
 
 Analysis of within-language model consistency revealed that English demonstrated the most consistent gender patterns across models (average *SD* = 11.5), while Czech showed the least consistency (average *SD* = 17.9), with models displaying extremely varied patterns ranging from near-exclusive focus on single patterns to more balanced distributions. German and Russian showed moderate consistency (*SD* = 12.0 and 12.3, respectively), while Albanian and Serbian fell between these extremes (*SD* = 14.6 and 15.0, respectively).
 
-![The most frequent gender association patterns by model and language.](../figures/svg/figure_4.svg){#fig-4}
+![The most frequent gender association patterns by model and language.](figures//figure_4.svg){#fig-4}
 
 ```{r tbl-4}
 #| tbl-cap: "Chi-Square Tests of Independence by Language"
 tbl_file <- "tables/tab-4.rds"
-file.copy(paste0("../", tbl_file), tbl_file, overwrite = TRUE)
+invisible(file.copy(paste0("../", tbl_file), tbl_file, overwrite = TRUE))
 readRDS(tbl_file) |>
   kable(
     format = "markdown",
@@ -353,14 +373,14 @@ A three-way chi-square test examining the model × stereotype dimension × gende
 
 To examine the strength of model effects within each dimension, separate chi-square tests were conducted (see @tbl-5). All dimensions showed significant model variations in gender patterns, but the magnitude of these differences varied. Communality displayed the strongest model effect (Cramér's *V* = .314), followed by giftedness (*V* = .299), agency (*V* = .274), dominance (*V* = .271), and weakness (*V* = .270). Although the effect sizes varied across dimensions, all were substantial, indicating that the models showed divergent gender association patterns across all stereotype dimensions.
 
-![The most frequent gender association patterns by model and stereotype dimension.](../figures/svg/figure_5.svg){#fig-5}
+![The most frequent gender association patterns by model and stereotype dimension.](figures//figure_5.svg){#fig-5}
 
 ```{r tbl-5}
 #| tbl-cap: "Chi-Square Tests of Independence by Stereotype Dimension"
 library(knitr)
 library(kableExtra)
 tbl_file <- "tables/tab-5.rds"
-file.copy(paste0("../", tbl_file), tbl_file, overwrite = TRUE)
+invisible(file.copy(paste0("../", tbl_file), tbl_file, overwrite = TRUE))
 readRDS(tbl_file) |>
   kable(
     format = "markdown",
@@ -383,7 +403,7 @@ As shown in @fig-5, distinct patterns emerged that both aligned with and contrad
 ```{r tbl-6}
 #| tbl-cap: "Gender Parity Gap Statistics by Stereotype Dimension"
 tbl_file <- "tables/tab-6.rds"
-file.copy(paste0("../", tbl_file), tbl_file, overwrite = TRUE)
+invisible(file.copy(paste0("../", tbl_file), tbl_file, overwrite = TRUE))
 readRDS(tbl_file) |>
   kable(
     format = "markdown",
@@ -405,7 +425,7 @@ readRDS(tbl_file) |>
 
 ::: {#fig-6 style="text-align:center;"}
 
-![](../figures/svg/figure_6.svg)
+![](figures//figure_6.svg)
 
 Gender parity gap by stereotype dimension.\
 *Note: Points show mean parity gap (% Men-only - % Women-only); shaded regions show ±1 SD across models. Large shaded regions indicate high model-to-model variation. Positive values indicate men bias (above zero line); negative values indicate women bias (below zero line).*
@@ -426,7 +446,7 @@ The analysis of concentration strength revealed that all stereotype dimensions s
 ```{r tbl-7}
 #| tbl-cap: "Mean concentration strength by stereotype dimension for the lowest (0) and highest (1) temperature."
 tbl_file <- "tables/tab-7.rds"
-file.copy(paste0("../", tbl_file), tbl_file, overwrite = TRUE)
+invisible(file.copy(paste0("../", tbl_file), tbl_file, overwrite = TRUE))
 readRDS(tbl_file) |>
   kable(
     col.names = c(
@@ -444,7 +464,7 @@ Shannon entropy analysis showed that normalized entropy increased across all dim
 ```{r tbl-8}
 #| tbl-cap: "Shannon entropy values by stereotype dimension for the lowest (0) and highest (1) temperature."
 tbl_file <- "tables/tab-8.rds"
-file.copy(paste0("../", tbl_file), tbl_file, overwrite = TRUE)
+invisible(file.copy(paste0("../", tbl_file), tbl_file, overwrite = TRUE))
 readRDS(tbl_file) |>
   kable(
     col.names = c(
