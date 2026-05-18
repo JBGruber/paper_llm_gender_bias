@@ -39,6 +39,10 @@ format:
         path: _extensions/andrewheiss/wordcount/citeproc.lua
       - at: pre-quarto
         path: _extensions/andrewheiss/wordcount/wordcount.lua
+    include-in-header:
+      text: |
+        \usepackage{needspace}
+        \makeatletter\renewcommand{\fps@table}{H}\makeatother
     include-before-body:
       text: \setlength{\emergencystretch}{5em}
 pdf-engine: xelatex
@@ -198,6 +202,7 @@ It is important to note that during preliminary testing, we discovered that the 
 
 This systematic approach to stimulus development, translation, prompt design, and data collection ensured the validity and reliability of our findings while addressing methodological gaps in previous research on gender bias in multilingual contexts
 
+\needspace{18cm}
 ::: {#tbl-langs}
 \footnotesize
 | Model | ENG | DEU | SRP | RUS | CZE | ALB |
