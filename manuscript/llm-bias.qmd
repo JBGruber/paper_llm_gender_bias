@@ -196,7 +196,6 @@ Responses were recorded verbatim and then processed to extract the gender associ
 
 It is important to note that during preliminary testing, we discovered that the Mistral model consistently failed to produce outputs or generated nonsensical responses when prompted in Albanian. This consistent failure indicates limitations in the model's Albanian language capabilities; consequently, Albanian was excluded from the Mistral model analyses. This limitation highlights the uneven distribution of linguistic capabilities across contemporary LLMs, particularly for less-resourced languages.
 
-This systematic approach to stimulus development, translation, prompt design, and data collection ensured the validity and reliability of our findings while addressing methodological gaps in previous research on gender bias in multilingual contexts
 
 \newpage
 ::: {#tbl-langs}
@@ -228,6 +227,8 @@ This systematic approach to stimulus development, translation, prompt design, an
 [^mistral]: Neither the official announcement nor the model card mention supported languages other than English ([model announcement](https://mistral.ai/news/announcing-mistral-7b); [Model Card](https://huggingface.co/mistralai/Mistral-7B-v0.1)).
 [^mistral-small]: Explicitly languages *including* English, French, German, Greek, Hindi, Indonesian, Italian, Japanese, Korean, Malay, Nepali, Polish, Portuguese, Romanian, Russian, Serbian, Spanish, Swedish, Turkish, Ukrainian, Vietnamese, Arabic, Bengali, Chinese, Farsi ([Model Card](https://huggingface.co/mistralai/Mistral-Small-3.1-24B-Instruct-2503); [Mistral AI](https://mistral.ai/news/mistral-small-3-1)).
 [^qwen]: 29+ languages officially supported, including Chinese, English, French, Spanish, Portuguese, German, Italian, Russian, Japanese, Korean, Vietnamese, Thai, and Arabic. Serbian, Czech, and Albanian not explicitly listed ([GitHub](https://github.com/QwenLM/Qwen2.5); [Model Card](https://www.alibabacloud.com/help/en/model-studio/what-is-qwen-llm)).
+
+This systematic approach to stimulus development, translation, prompt design, and data collection ensured the validity and reliability of our findings while addressing methodological gaps in previous research on gender bias in multilingual contexts
 
 ## Data Analysis
 
