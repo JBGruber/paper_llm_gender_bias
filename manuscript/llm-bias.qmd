@@ -39,10 +39,6 @@ format:
         path: _extensions/andrewheiss/wordcount/citeproc.lua
       - at: pre-quarto
         path: _extensions/andrewheiss/wordcount/wordcount.lua
-    include-in-header:
-      text: |
-        \usepackage{needspace}
-        \makeatletter\renewcommand{\fps@table}{H}\makeatother
     include-before-body:
       text: \setlength{\emergencystretch}{5em}
 pdf-engine: xelatex
@@ -202,7 +198,7 @@ It is important to note that during preliminary testing, we discovered that the 
 
 This systematic approach to stimulus development, translation, prompt design, and data collection ensured the validity and reliability of our findings while addressing methodological gaps in previous research on gender bias in multilingual contexts
 
-\needspace{18cm}
+\newpage
 ::: {#tbl-langs}
 \footnotesize
 | Model | ENG | DEU | SRP | RUS | CZE | ALB |
@@ -261,6 +257,8 @@ For RQ4, we moved beyond chi-square analyses and instead employed three compleme
 
 A chi-square test of independence revealed a significant association between stereotype dimensions and gender association patterns, χ²(24) = 34059,126, *p* \< .001, Cramér's *V* = .230. While the effect size was small (Cramér's *V*² = .053), the large sample size and systematic patterns confirmed significant relationships between stereotype dimensions and gendered associations in LLMs. All standardized residuals are presented in @tbl-2, with the representation of the distribution of gender associations by stereotype dimension shown in @fig-1.
 
+As can be observed from @fig-1 and @tbl-2, distinct gender association profiles emerged across stereotype dimensions. Dominance showed the strongest association with men, with men-only associations occurring far more frequently than expected (*z* = 128.99), while women-only (*z* = −87.77), nonbinary-only (*z* = −39.08), and all-three (*z* = −12.62) associations were significantly underrepresented. Communality demonstrated the opposite pattern, with women-only associations substantially overrepresented (*z* = 105.64) and men-only associations dramatically underrepresented (*z* = −103.56), aligning with traditional gender stereotypes [@kosakowska-berezecka_gendered_2023]. This dimension also showed elevated women + nonbinary associations (*z* = 6.55), suggesting that stereotypical associations with women may extend to nonbinary individuals.
+
 ```{r tbl-2}
 #| tbl-cap: "Standardized Residuals from Chi-Square Test of Independence by Stereotype Dimension and Association Pattern"
 tbl_file <- "tables/tab-2.rds"
@@ -290,8 +288,6 @@ if (knitr::is_latex_output()) {
 
 
 ![Distribution of gender associations by stereotype dimension.](figures//figure_1.svg){#fig-1}
-
-As can be observed from @fig-1 and @tbl-2, distinct gender association profiles emerged across stereotype dimensions. Dominance showed the strongest association with men, with men-only associations occurring far more frequently than expected (*z* = 128.99), while women-only (*z* = −87.77), nonbinary-only (*z* = −39.08), and all-three (*z* = −12.62) associations were significantly underrepresented. Communality demonstrated the opposite pattern, with women-only associations substantially overrepresented (*z* = 105.64) and men-only associations dramatically underrepresented (*z* = −103.56), aligning with traditional gender stereotypes [@kosakowska-berezecka_gendered_2023]. This dimension also showed elevated women + nonbinary associations (*z* = 6.55), suggesting that stereotypical associations with women may extend to nonbinary individuals.
 
 Weakness similarly followed stereotypical patterns, with substantially overrepresented women-only (*z* = 56.99) associations and substantially underrepresented men-only (*z* = −55.03) associations. Notably, this dimension also showed an overrepresentation of men + women (*z* = 5.31) associations. Agency displayed a more complex pattern, with men-only (*z* = 35.04), nonbinary-only (*z* = 24.93), and all-three (*z* = 17.02) associations overrepresented, while women-only associations were strongly underrepresented (*z* = −72.52). Giftedness showed the most balanced patterns across gender categories, with modest overrepresentation of nonbinary-only (*z* = 16.64) and women + nonbinary (*z* = 4.07) associations.
 
