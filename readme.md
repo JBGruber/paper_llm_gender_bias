@@ -46,3 +46,26 @@ You can render the full manuscript by using the files in the `manuscript` direct
 ```
 quarto render manuscript/llm-bias.qmd
 ```
+
+## Cite this article
+
+Urman, A., Domahidi, E., Gruber, J. B., Jovančević, A., Maier, M., Gërguri, D., Mazak, J., & Velden, M. (2026). Gender Representation in Large Language Models: ACross-Linguistic and Cross-Model Analysis. Computational Communication Research, 8(2), 1–39. https://doi.org/10.5117/CCR2026.2.11.URMA
+
+```bib
+@article{urman_gender_2026,
+	title = {Gender {Representation} in {Large} {Language} {Models}: {ACross}-{Linguistic} and {Cross}-{Model} {Analysis}},
+	volume = {8},
+	issn = {2665-9085},
+	shorttitle = {Gender {Representation} in {Large} {Language} {Models}},
+	url = {https://www.aup-online.com/content/journals/10.5117/CCR2026.2.11.URMA},
+	doi = {10.5117/CCR2026.2.11.URMA},
+	language = {en},
+	number = {2},
+	urldate = {2026-05-15},
+	journal = {Computational Communication Research},
+	author = {Urman, Aleksandra and Domahidi, Emese and Gruber, Johannes B. and Jovančević, Ana and Maier, Michaela and Gërguri, Dren and Mazak, Jaromír and Velden, Mariken},
+	month = jan,
+	year = {2026},
+	pages = {1--39},
+}
+```
